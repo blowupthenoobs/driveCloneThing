@@ -47,7 +47,7 @@ const SettingsPage = () => {
 
         navigate("/");
       } else {
-        navigate("/drive/home");
+        navigate("/home");
       }
     }
   };
@@ -80,7 +80,7 @@ const SettingsPage = () => {
           )}
         >
           <a
-            onClick={() => navigate("/drive/home")}
+            onClick={() => navigate("/home")}
             className="text-gray-600 hover:text-primary cursor-pointer flex flex-row items-center space-x-1 pt-6"
           >
             <ChevronOutline className="w-6 h-6 rotate-90" />

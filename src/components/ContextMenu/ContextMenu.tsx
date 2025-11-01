@@ -129,9 +129,9 @@ const ContextMenu: React.FC<ContextMenuProps> = memo((props) => {
       ["trash", "delete", "restore"].includes(action)
     ) {
       if (folder.parent === "/") {
-        navigate("/drive/trash");
+        navigate("/trash");
       } else {
-        navigate(`/drive/folder-trash/${folder.parent}`);
+        navigate(`/folder-trash/${folder.parent}`);
       }
     }
   };

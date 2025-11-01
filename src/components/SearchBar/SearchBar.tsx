@@ -53,21 +53,21 @@ const SearchBar = memo(() => {
     setShowSuggestions(false);
     if (isMedia) {
       if (searchText.length) {
-        navigate(`/drive/search-media/${searchText}`);
+        navigate(`/search-media/${searchText}`);
       } else {
-        navigate("/drive/media");
+        navigate("/media");
       }
     } else if (isTrash) {
       if (searchText.length) {
-        navigate(`/drive/search-trash/${searchText}`);
+        navigate(`/search-trash/${searchText}`);
       } else {
-        navigate("/drive/trash");
+        navigate("/trash");
       }
     } else {
       if (searchText.length) {
-        navigate(`/drive/search/${searchText}`);
+        navigate(`/search/${searchText}`);
       } else {
-        navigate("/drive/home");
+        navigate("/home");
       }
     }
   };
@@ -83,9 +83,9 @@ const SearchBar = memo(() => {
 
   const folderClick = (folder: FolderInterface) => {
     if (!isTrash) {
-      navigate(`/drive/folder/${folder?._id}`);
+      navigate(`/folder/${folder?._id}`);
     } else {
-      navigate(`/drive/folder-trash/${folder?._id}`);
+      navigate(`/folder-trash/${folder?._id}`);
     }
 
     resetState();

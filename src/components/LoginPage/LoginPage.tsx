@@ -35,7 +35,7 @@ const LoginPage = () => {
     try {
       const userResponse = await getUserAPI();
 
-      const redirectPath = location.state?.from?.pathname || "/drive/home";
+      const redirectPath = location.state?.from?.pathname || "/home";
       dispatch(setUser(userResponse));
       navigate(redirectPath);
       window.localStorage.setItem("hasPreviouslyLoggedIn", "true");
@@ -54,7 +54,7 @@ const LoginPage = () => {
       const loginResponse = await loginAPI(email, password);
       window.localStorage.setItem("hasPreviouslyLoggedIn", "true");
       dispatch(setUser(loginResponse));
-      navigate("/drive/home");
+      navigate("/home");
       setLoadingLogin(false);
     } catch (e) {
       if (
@@ -81,7 +81,7 @@ const LoginPage = () => {
       }
 
       dispatch(setUser(createAccountResponse.user));
-      navigate("/drive/home");
+      navigate("/home");
       setLoadingLogin(false);
     } catch (e) {
       if (e instanceof AxiosError && e.response?.status === 409) {

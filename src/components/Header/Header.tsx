@@ -59,7 +59,7 @@ const Header = () => {
           <div>
             <div>
               <a
-                onClick={() => navigate("/drive/settings")}
+                onClick={() => navigate("/settings")}
                 className="cursor-pointer"
               >
                 <SettingsIconSolid className="w-6 h-6 text-gray-primary" />

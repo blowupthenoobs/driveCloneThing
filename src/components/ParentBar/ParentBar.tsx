@@ -27,21 +27,21 @@ const ParentBar = memo(() => {
 
   const goHomeOrTrash = () => {
     if (!isTrash) {
-      navigate("/drive/home");
+      navigate("/home");
     } else {
-      navigate("/drive/trash");
+      navigate("/trash");
     }
   };
 
   const goToFolder = () => {
-    navigate(`/drive/folder/${folder?._id}`);
+    navigate(`/folder/${folder?._id}`);
   };
 
   const goBackAFolder = () => {
     if (folder?.parent === "/") {
-      navigate("/drive/home");
+      navigate("/home");
     } else {
-      navigate(`/drive/folder/${folder.parent}`);
+      navigate(`/folder/${folder.parent}`);
     }
   };
 
