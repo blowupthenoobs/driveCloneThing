@@ -13,7 +13,7 @@ import ActionsIcon from "../../icons/ActionsIcon";
 import { FileInterface } from "../../types/file";
 import getBackendURL from "../../utils/getBackendURL";
 import dayjs from "dayjs";
-import CalendarIcon from "../../icons/CalendarIcon";
+// import CalendarIcon from "../../icons/CalendarIcon";
 import ClockIcon from "../../icons/ClockIcon";
 
 interface FileItemProps {
@@ -100,10 +100,10 @@ const FileItem: React.FC<FileItemProps> = memo((props) => {
     return (
       <tr
         className={classNames(
-          "text-[14px] font-normal border-y",
+          "text-[14px] font-normal border-y border-bg-grey",
           !elementSelected && !elementMultiSelected
-            ? "text-[#212b36] hover:bg-[#f6f5fd]"
-            : "bg-[#3c85ee] animate text-white"
+            ? "text-black hover:bg-grey-hover"
+            : "bg-[#3c85ee] animate text-bg-dark-grey"
         )}
         onClick={fileClick}
         onContextMenu={onContextMenu}
@@ -170,10 +170,10 @@ const FileItem: React.FC<FileItemProps> = memo((props) => {
     return (
       <div
         className={classNames(
-          "border rounded-md o transition-all duration-400 ease-in-out cursor-pointer flex items-center justify-center flex-col h-[150px] animiate hover:border-primary overflow-hidden bg-white ",
+          "border rounded-md o transition-all duration-400 ease-in-out cursor-pointer flex items-center justify-center flex-col h-[150px] animiate hover:border-primary overflow-hidden bg-bg-grey ",
           elementSelected || elementMultiSelected
             ? "border-primary"
-            : "border-gray-third"
+            : "border-bg-grey"
         )}
         onClick={fileClick}
         onContextMenu={onContextMenu}
@@ -193,7 +193,7 @@ const FileItem: React.FC<FileItemProps> = memo((props) => {
         )}
         <div
           className={classNames(
-            "inline-flex items-center w-full bg-white relative",
+            "inline-flex items-center w-full bg-bg-grey relative",
             {
               "mt-2": !thumbnailLoaded,
             }
@@ -214,7 +214,7 @@ const FileItem: React.FC<FileItemProps> = memo((props) => {
                 onLoad={() => setThumbnailLoaded(true)}
               />
               {file.metadata.isVideo && (
-                <div className="w-full h-full absolute flex justify-center items-center text-white">
+                <div className="w-full h-full absolute flex justify-center items-center text-black">
                   <PlayButtonIcon className="w-[50px] h-[50px]" />
                 </div>
               )}
@@ -246,8 +246,8 @@ const FileItem: React.FC<FileItemProps> = memo((props) => {
           className={classNames(
             "p-3 overflow-hidden text-ellipsis block w-full animate",
             elementSelected || elementMultiSelected
-              ? "bg-primary text-white"
-              : "bg-white text-gray-primary"
+              ? "bg-primary text-bg-grey"
+              : "bg-bg-grey text-black"
           )}
         >
           <p
@@ -255,7 +255,7 @@ const FileItem: React.FC<FileItemProps> = memo((props) => {
               "text-[14px] leading-[16px] font-normal max-w-full overflow-hidden text-ellipsis whitespace-nowrap animate mb-0",
               elementSelected || elementMultiSelected
                 ? "text-white"
-                : "text-[#212b36]"
+                : "text-primary"
             )}
           >
             {formattedFilename}

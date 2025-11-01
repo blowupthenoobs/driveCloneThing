@@ -132,7 +132,7 @@ const AddNewDropdown: React.FC<AddNewDropdownProps> = ({
         <li>
           <div>
             <a
-              className="flex items-center justify-start px-5 py-3 no-underline overflow-hidden text-sm bg-white hover:bg-white-hover"
+              className="flex items-center justify-start px-5 py-3 no-underline overflow-hidden text-sm bg-bg-grey hover:bg-grey-hover"
               onClick={triggerFileUpload}
             >
               <UploadFileIcon className="w-4 h-4 mr-2.5 text-primary" />
@@ -142,7 +142,7 @@ const AddNewDropdown: React.FC<AddNewDropdownProps> = ({
         </li>
         <li>
           <a
-            className="flex items-center justify-start px-5 py-3 no-underline overflow-hidden text-sm bg-white hover:bg-white-hover"
+            className="flex items-center justify-start px-5 py-3 no-underline overflow-hidden text-sm bg-bg-grey hover:bg-grey-hover"
             onClick={createFolder}
           >
             <CreateFolderIcon className="w-4 h-4 mr-2.5 text-primary" />
@@ -152,7 +152,7 @@ const AddNewDropdown: React.FC<AddNewDropdownProps> = ({
         {supportsWebkitDirectory && (
           <li>
             <a
-              className="flex items-center justify-start px-5 py-3 no-underline overflow-hidden text-sm bg-white hover:bg-white-hover"
+              className="flex items-center justify-start px-5 py-3 no-underline overflow-hidden text-sm bg-bg-grey hover:bg-grey-hover"
               onClick={triggerFolderUpload}
             >
               <FolderUploadIcon className="w-4 h-4 mr-2.5 text-primary" />

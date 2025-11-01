@@ -35,7 +35,7 @@ const LoginPage = () => {
     try {
       const userResponse = await getUserAPI();
 
-      const redirectPath = location.state?.from?.pathname || "/home";
+      const redirectPath = location.state?.from?.pathname || "/drive/home";
       dispatch(setUser(userResponse));
       navigate(redirectPath);
       window.localStorage.setItem("hasPreviouslyLoggedIn", "true");
@@ -54,7 +54,7 @@ const LoginPage = () => {
       const loginResponse = await loginAPI(email, password);
       window.localStorage.setItem("hasPreviouslyLoggedIn", "true");
       dispatch(setUser(loginResponse));
-      navigate("/home");
+      navigate("/drive/home");
       setLoadingLogin(false);
     } catch (e) {
       if (
@@ -81,7 +81,7 @@ const LoginPage = () => {
       }
 
       dispatch(setUser(createAccountResponse.user));
-      navigate("/home");
+      navigate("/drive/home");
       setLoadingLogin(false);
     } catch (e) {
       if (e instanceof AxiosError && e.response?.status === 409) {
@@ -233,10 +233,10 @@ const LoginPage = () => {
 
   return (
     <div>
-      <div className="bg-[#F4F4F6] w-screen dynamic-height flex justify-center items-center">
-        <div className="rounded-md shadow-lg bg-white p-10 relative w-[90%] sm:w-[500px] animate-height">
+      <div className="bg-bg-dark-grey en dynamic-height flex justify-center items-center">
+        <div className="rounded-md shadow-lg bg-bg-grey p-10 relative w-[90%] sm:w-[500px] animate-height">
           <div className="absolute -top-10 left-0 right-0 flex justify-center items-center">
-            <div className="flex items-center justify-center rounded-full bg-white p-3 shadow-md">
+            <div className="flex items-center justify-center rounded-full bg-grey-hover p-3 shadow-md">
               {!loadingLogin && (
                 <img src="/images/icon.png" alt="logo" className="w-[45px]" />
               )}
@@ -244,14 +244,14 @@ const LoginPage = () => {
             </div>
           </div>
           <form onSubmit={onSubmit}>
-            <p className="text-[#212B36] font-medium text-[25px] mt-0 mb-[15px] text-center">
+            <p className="text-primary font-medium text-[25px] mt-0 mb-[15px] text-center">
               {headerTitle}
             </p>
             {/* Email Address */}
             <input
               type="text"
               placeholder="Email address"
-              className="w-full h-[48px] pl-[12px] pr-[12px] text-black border border-[#637381] rounded-[5px] outline-none text-[15px]"
+              className="w-full h-[48px] pl-[12px] pr-[12px] text-black border border-grey-hover rounded-[5px] outline-none text-[15px]"
               onChange={(e) => setEmail(e.target.value)}
               value={email}
             />
@@ -262,7 +262,7 @@ const LoginPage = () => {
                 <input
                   type="password"
                   placeholder="Password"
-                  className="w-full h-[48px] pl-[12px] pr-[70px] text-black border border-[#637381] rounded-[5px] outline-none text-[15px] mt-4"
+                  className="w-full h-[48px] pl-[12px] pr-[70px] text-black border border-grey-hover rounded-[5px] outline-none text-[15px] mt-4"
                   onChange={(e) => setPassword(e.target.value)}
                   value={password}
                 />

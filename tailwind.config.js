@@ -9,13 +9,24 @@ module.exports = {
     extend: {
       colors: {
         primary: "#3c85ee",
+        "dark-primary": "#336dc1",
+        "dirty-primary": "#212b36",
         "primary-hover": "#326bcc",
-        "white-hover": "#f6f5fd",
+        "white-hover": "#333333",
+        "grey-hover": "#434343",
+        "bg-grey": "#333333",
+        "bg-dark-grey": "#202020",
         "gray-primary": "#637381",
         "gray-secondary": "#e8eef2",
         "gray-third": "#ebe9f9",
         "light-primary": "rgba(60, 133, 238, 0.4)",
+
+        "off-black": "rgb(31, 31, 31)"
       },
+      borderRadius:
+      {
+        'size1': "4px"
+      }
     },
     screens: {
       quickAccessOne: "1000px",

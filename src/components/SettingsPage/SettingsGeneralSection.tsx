@@ -102,56 +102,56 @@ const SettingsPageGeneral = () => {
         <p className="text-base">General settings</p>
       </div>
       <div>
-        <div className="px-3 py-4 flex flex-row justify-between items-center border-b border-gray-secondary">
+        <div className="px-3 py-4 flex flex-row justify-between items-center border-b border-bg-grey">
           <p className="text-gray-primary">File list style</p>
           <select
             value={listViewStyle}
             onChange={fileListStyleChange}
-            className="text-sm font-medium appearance-none bg-white text-primary"
+            className="text-sm font-medium appearance-none bg-bg-grey rounded-size1 p-0.5 pl-1.5 pr-1.5  text-primary"
           >
             <option value="grid">Grid</option>
             <option value="list">List</option>
           </select>
         </div>
-        <div className="px-3 py-4 flex flex-row justify-between items-center border-b border-gray-secondary">
+        <div className="px-3 py-4 flex flex-row justify-between items-center border-b border-bg-grey">
           <p className="text-gray-primary">Sort by</p>
           <select
             value={sortBy}
             onChange={sortByChange}
-            className="text-sm font-medium appearance-none bg-white text-primary"
+            className="text-sm font-medium appearance-none bg-bg-grey rounded-size1  p-0.5 pl-2.5 text-primary"
           >
             <option value="date">Date</option>
             <option value="name">Name</option>
           </select>
         </div>
-        <div className="px-3 py-4 flex flex-row justify-between items-center border-b border-gray-secondary">
+        <div className="px-3 py-4 flex flex-row justify-between items-center border-b border-bg-grey">
           <p className="text-gray-primary">Order by</p>
           <select
             value={orderBy}
             onChange={orderByChange}
-            className="text-sm font-medium appearance-none bg-white text-primary"
+            className="text-sm font-medium appearance-none bg-bg-grey rounded-size1 p-0.5 pl-1.5 pr-1.5  text-primary"
           >
             <option value="descending">Descending</option>
             <option value="ascending">Ascending</option>
           </select>
         </div>
-        <div className="px-3 py-4 flex flex-row justify-between items-center border-b border-gray-secondary">
+        <div className="px-3 py-4 flex flex-row justify-between items-center border-b border-bg-grey">
           <p className="text-gray-primary">Single click to enter folders</p>
           <select
             value={singleClickFolders}
             onChange={singleClickFoldersChange}
-            className="text-sm font-medium appearance-none bg-white text-primary"
+            className="text-sm font-medium appearance-none bg-bg-grey rounded-size1 p-0.5 pl-1.5 pr-1.5  text-primary"
           >
             <option value="disabled">Disabled</option>
             <option value="enabled">Enabled</option>
           </select>
         </div>
-        <div className="px-3 py-4 flex flex-row justify-between items-center border-b border-gray-secondary">
+        <div className="px-3 py-4 flex flex-row justify-between items-center border-b border-bg-grey">
           <p className="text-gray-primary">Load thumbnails</p>
           <select
             value={loadThumbnails}
             onChange={loadThumbnailsChange}
-            className="text-sm font-medium appearance-none bg-white text-primary"
+            className="text-sm font-medium appearance-none bg-bg-grey rounded-size1 p-0.5 pl-1.5 pr-1.5  text-primary"
           >
             <option value="enabled">Enabled</option>
             <option value="disabled">Disabled</option>

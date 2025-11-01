@@ -3,13 +3,19 @@
 }
 
 html {
+  background-color: #202020;
 }
 
 input[type="text"],
 input[type="email"],
 input[type="password"],
 textarea {
-  -webkit-appearance: none;
+  background-color: #434343;
+}
+
+input:focus {
+  background-color: #434343;
+  border-color:#3c85ee;
 }
 
 body {
@@ -38,6 +44,7 @@ body {
   & * {
     box-sizing: border-box;
     font-family: sans-serif;
+    // background-color: #202020;
   }
 }
 

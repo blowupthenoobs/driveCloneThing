@@ -90,8 +90,8 @@ const Folders = memo(
         <div className="flex flex-row mb-5 justify-between items-center">
           <h2
             className={classNames(
-              "m-0 text-xl font-medium"
-              // isHome || isTrash ? "block" : "invisible"
+              "m-0 text-xl font-medium text-primary",
+              isHome || isTrash ? "block" : "invisible"
             )}
           >
             {title}
@@ -121,7 +121,7 @@ const Folders = memo(
               </svg>
             </a>
             <select
-              className="text-sm font-medium appearance-none bg-white"
+              className="text-sm font-medium appearance-none bg-bg-grey p-1 rounded-size1 border-radius-10px text-primary"
               onChange={switchTypeOrderBy}
               value={
                 sortBy === "alp_desc" || sortBy === "alp_asc" ? "name" : "date"

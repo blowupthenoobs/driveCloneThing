@@ -24,7 +24,7 @@ const Header = () => {
   return (
     <header
       id="header"
-      className="select-none border-b fixed top-0 left-0 w-full bg-white z-10"
+      className="select-none border-b border-bg-grey fixed top-0 left-0 w-full bg-bg-dark-grey z-10"
     >
       <div className="px-6 flex justify-between  items-center py-3">
         <div className="items-center w-[260px] hidden desktopMode:flex">
@@ -59,7 +59,7 @@ const Header = () => {
           <div>
             <div>
               <a
-                onClick={() => navigate("/settings")}
+                onClick={() => navigate("/drive/settings")}
                 className="cursor-pointer"
               >
                 <SettingsIconSolid className="w-6 h-6 text-gray-primary" />

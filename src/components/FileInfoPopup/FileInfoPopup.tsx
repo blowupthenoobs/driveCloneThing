@@ -118,7 +118,7 @@ const FileInfoPopup = () => {
               className="h-7 w-7 bg-red-500 rounded-md flex flex-row justify-center items-center"
               style={{ background: imageColor }}
             >
-              <span className="font-semibold text-[9.5px] text-white">
+              <span className="font-semibold text-[9.5px] text-bg-grey">
                 {fileExtension}
               </span>
             </div>
@@ -144,16 +144,16 @@ const FileInfoPopup = () => {
         </div>
       </div>
       <div
-        className="w-[90%] sm:w-[500px] p-6 bg-white rounded-md animate-easy"
+        className="w-[90%] sm:w-[500px] p-6 bg-bg-dark-grey rounded-md animate-easy"
         style={{ marginTop: !animate ? "calc(100vh + 350px" : 0 }}
       >
-        <div className="bg-light-primary p-6 rounded-md flex items-center space-x-2">
+        <div className=" p-3 rounded-md flex items-center space-x-2">
           <input
-            className="rounded-md w-full text-xs h-10 p-2"
+            className="rounded-md w-full text-xs h-12 p-2 bg-bg-grey"
             value={file.filename}
           />
           <button
-            className="bg-primary text-white hover:bg-primary-hover text-xs w-24 min-w-20 p-1 py-3 rounded-md"
+            className="bg-primary text-b hover:bg-primary-hover text-xs w-24 min-w-20 p-1 py-3 rounded-md"
             onClick={copyName}
           >
             Copy name
@@ -181,7 +181,7 @@ const FileInfoPopup = () => {
           </div>
           <div className="flex w-full justify-center items-center pt-4">
             <button
-              className="bg-primary text-white hover:bg-primary-hover text-xs p-1 py-3 rounded-md flex items-center justify-center w-40 space-x-2"
+              className="bg-primary text-bg-grey hover:bg-primary-hover text-xs p-1 py-3 rounded-md flex items-center justify-center w-40 space-x-2"
               onClick={downloadItem}
             >
               <DownloadIcon className="w-5 h-5" />

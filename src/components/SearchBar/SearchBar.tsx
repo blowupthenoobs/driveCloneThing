@@ -53,21 +53,21 @@ const SearchBar = memo(() => {
     setShowSuggestions(false);
     if (isMedia) {
       if (searchText.length) {
-        navigate(`/search-media/${searchText}`);
+        navigate(`/drive/search-media/${searchText}`);
       } else {
-        navigate("/media");
+        navigate("/drive/media");
       }
     } else if (isTrash) {
       if (searchText.length) {
-        navigate(`/search-trash/${searchText}`);
+        navigate(`/drive/search-trash/${searchText}`);
       } else {
-        navigate("/trash");
+        navigate("/drive/trash");
       }
     } else {
       if (searchText.length) {
-        navigate(`/search/${searchText}`);
+        navigate(`/drive/search/${searchText}`);
       } else {
-        navigate("/home");
+        navigate("/drive/home");
       }
     }
   };
@@ -83,9 +83,9 @@ const SearchBar = memo(() => {
 
   const folderClick = (folder: FolderInterface) => {
     if (!isTrash) {
-      navigate(`/folder/${folder?._id}`);
+      navigate(`/drive/folder/${folder?._id}`);
     } else {
-      navigate(`/folder-trash/${folder?._id}`);
+      navigate(`/drive/folder-trash/${folder?._id}`);
     }
 
     resetState();
@@ -133,16 +133,16 @@ const SearchBar = memo(() => {
         onChange={onChangeSearch}
         value={searchText}
         placeholder={searchTextPlaceholder}
-        className="w-full h-8 border border-gray-300 pl-11 pr-4 text-base text-black rounded-md"
+        className="w-full h-8 border border-bg-dark-grey pl-11 pr-4 text-base text-black rounded-md"
         onFocus={onFocus}
         id="search-bar"
         autoComplete="off"
       />
       <div
         className={classNames(
-          "absolute left-0 top-8 bg-white shadow-xl rounded-md w-full max-h-[400px] overflow-y-scroll animate-movement",
+          "absolute left-0 top-8 bg-bg-grey shadow-xl rounded-md w-full max-h-[400px] overflow-y-scroll animate-movement",
           {
-            "border border-gray-secondary":
+            "border border-grey-hover":
               showSuggestions && debouncedSearchText.length,
           }
         )}

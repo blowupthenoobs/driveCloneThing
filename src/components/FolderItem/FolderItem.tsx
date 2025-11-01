@@ -88,9 +88,9 @@ const FolderItem: React.FC<FolderItemProps> = memo((props) => {
         })
       );
       if (isTrash) {
-        navigate(`/folder-trash/${folder._id}`);
+        navigate(`/drive/folder-trash/${folder._id}`);
       } else {
-        navigate(`/folder/${folder._id}`);
+        navigate(`/drive/folder/${folder._id}`);
       }
     }
 
@@ -100,9 +100,9 @@ const FolderItem: React.FC<FolderItemProps> = memo((props) => {
   return (
     <div
       className={classNames(
-        "p-3 border border-gray-third rounded-md overflow-hidden cursor-pointer animate hover:border-primary",
+        "p-3 border border-bg-dark-grey rounded-md overflow-hidden cursor-pointer animate hover:border-primary",
         {
-          "bg-primary": elementSelected || elementMultiSelected,
+          "bg-dark-primary": elementSelected || elementMultiSelected,
         }
       )}
       onClick={folderClick}
@@ -128,7 +128,7 @@ const FolderItem: React.FC<FolderItemProps> = memo((props) => {
           className={classNames(
             "w-10 h-10",
             elementSelected || elementMultiSelected
-              ? "text-white"
+              ? "text-bg-dark-grey"
               : "text-[#3c85ee]"
           )}
           aria-hidden="true"
@@ -150,16 +150,16 @@ const FolderItem: React.FC<FolderItemProps> = memo((props) => {
         className={classNames(
           "text-ellipsis block w-full animate",
           elementSelected || elementMultiSelected
-            ? "bg-primary text-white"
-            : "bg-white text-gray-primary"
+            ? "bg-dark-primary text-black"
+            : "bg-bg-dark-grey text-gray-primary"
         )}
       >
         <p
           className={classNames(
             "m-0 text-sm font-normal max-w-full overflow-hidden text-ellipsis whitespace-nowrap animate",
             elementSelected || elementMultiSelected
-              ? "text-white"
-              : "text-black"
+              ? "text-black"
+              : "text-grey-hover"
           )}
         >
           {folder.name}
@@ -170,7 +170,7 @@ const FolderItem: React.FC<FolderItemProps> = memo((props) => {
             className={classNames(
               "m-0 font-normal max-w-full whitespace-nowrap text-xs animate",
               elementSelected || elementMultiSelected
-                ? "text-white"
+                ? "text-black"
                 : "text-gray-primary"
             )}
           >

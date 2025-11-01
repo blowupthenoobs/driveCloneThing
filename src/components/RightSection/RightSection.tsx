@@ -121,14 +121,14 @@ const RightSection = memo(() => {
   return (
     <div
       className={classNames(
-        "!hidden desktopMode:!flex min-w-[260px] max-w-[260px] border-l border-gray-secondary bg-white right-0 justify-center relative mt-1.5",
+        "!hidden desktopMode:!flex min-w-[260px] max-w-[260px] border-l border-bg-grey bg-bg-dark-grey right-0 justify-center relative mt-1.5",
         selectedItem.id === "" ? "flex justify-center items-center" : ""
       )}
     >
       {selectedItem.id === "" ? (
         <div className="flex flex-col justify-center items-center text-center">
           <FileDetailsIcon className="w-10 h-10" />
-          <p className="text-gray-500 text-xs mt-4">
+          <p className="text-primary text-xs mt-4">
             Select a file or folder to view it’s details
           </p>
         </div>
@@ -145,12 +145,12 @@ const RightSection = memo(() => {
                 <p className="text-sm ml-6 z-10">{bannerText}</p>
               </div>
               <CloseIcon
-                className="w-5 h-5 p-1 cursor-pointer absolute right-3 top-5 bg-white rounded-full shadow-lg z-10"
+                className="w-5 h-5 p-1 cursor-pointer absolute right-3 top-5 bg-bg-dark-grey text-white rounded-full shadow-lg z-10"
                 onClick={reset}
               />
             </div>
             <div className="p-6">
-              <p className="m-0 text-[#212b36] text-sm font-bold max-h-[90px] overflow-hidden text-ellipsis block break-all">
+              <p className="m-0 text-primary text-sm font-bold max-h-[90px] overflow-hidden text-ellipsis block break-all">
                 {formattedName}
               </p>
             </div>
@@ -158,16 +158,16 @@ const RightSection = memo(() => {
             <div className="p-6 pt-0">
               <p className="text-sm mb-4">Information</p>
               <div className="flex flex-col space-y-2">
-                <div className="flex justify-between border-b border-gray-200 pb-2">
+                <div className="flex justify-between border-b border-bg-grey pb-2">
                   <span className="text-[#637381] text-[13px] font-normal mr-[35px] leading-[20px] min-w-[50px]">
                     Type
                   </span>
-                  <span className="text-[#212b36] text-[13px] font-normal leading-[20px]">
+                  <span className="text-primary text-[13px] font-normal leading-[20px]">
                     {selectedItem.file ? fileExtension : "Folder"}
                   </span>
                 </div>
                 <div
-                  className="flex justify-between border-b border-gray-200 pb-2"
+                  className="flex justify-between border-b border-bg-grey pb-2"
                   style={
                     !selectedItem.file
                       ? { display: "none" }
@@ -177,20 +177,20 @@ const RightSection = memo(() => {
                   <span className="text-[#637381] text-[13px] font-normal mr-[35px] leading-[20px] min-w-[50px]">
                     Size
                   </span>
-                  <span className="text-[#212b36] text-[13px] font-normal leading-[20px]">
+                  <span className="text-primary text-[13px] font-normal leading-[20px]">
                     {fileSize}
                   </span>
                 </div>
-                <div className="flex justify-between border-b border-gray-200 pb-2">
+                <div className="flex justify-between border-b border-bg-grey pb-2">
                   <span className="text-[#637381] text-[13px] font-normal mr-[35px] leading-[20px] min-w-[50px]">
                     Created
                   </span>
-                  <span className="text-[#212b36] text-[13px] font-normal leading-[20px]">
+                  <span className="text-primary text-[13px] font-normal leading-[20px]">
                     {formattedDate}
                   </span>
                 </div>
                 <div
-                  className="flex justify-between border-b border-gray-200 pb-2"
+                  className="flex justify-between border-b border-bg-grey pb-2"
                   style={
                     !selectedItem.file
                       ? { display: "none" }
@@ -200,7 +200,7 @@ const RightSection = memo(() => {
                   <span className="text-[#637381] text-[13px] font-normal mr-[35px] leading-[20px] min-w-[50px]">
                     Access
                   </span>
-                  <span className="text-[#212b36] text-[13px] font-normal leading-[20px]">
+                  <span className="text-primary text-[13px] font-normal leading-[20px]">
                     {selectedItem.file?.metadata.link ? "Public" : "Private"}
                   </span>
                 </div>
@@ -208,14 +208,14 @@ const RightSection = memo(() => {
             </div>
           </div>
 
-          {/* <div
+          <div
             className="w-full p-0.5 opacity-40 h-10 absolute bottom-0"
             style={{ background: bannerBackgroundColor }}
           ></div>
           <div className="flex flex-row justify-between w-full z-10">
             {!itemTrashed && (
               <div
-                className="text-gray-600 hover:text-black p-2.5 rounded-full flex items-center justify-center cursor-pointer"
+                className="text-black hover:text-primary p-2.5 rounded-full flex items-center justify-center cursor-pointer"
                 onClick={() => onAction("download")}
               >
                 <DownloadIcon className="w-5 h-5" />
@@ -223,7 +223,7 @@ const RightSection = memo(() => {
             )}
             {selectedItem.file && !itemTrashed && (
               <div
-                className="text-gray-600 hover:text-black p-2.5 rounded-full flex items-center justify-center cursor-pointer"
+                className="text-black hover:text-primary p-2.5 rounded-full flex items-center justify-center cursor-pointer"
                 onClick={() => onAction("share")}
               >
                 <ShareIcon className="w-5 h-5" />
@@ -231,27 +231,27 @@ const RightSection = memo(() => {
             )}
             {itemTrashed && (
               <div
-                className="text-gray-600 hover:text-black p-2.5 rounded-full flex items-center justify-center cursor-pointer"
+                className="text-black hover:text-primary p-2.5 rounded-full flex items-center justify-center cursor-pointer"
                 onClick={() => onAction("restore")}
               >
                 <RestoreIcon className="w-5 h-5" />
               </div>
             )}
             <div
-              className="text-gray-600 hover:text-black p-2.5 rounded-full flex items-center justify-center cursor-pointer"
+              className="text-black hover:text-primary p-2.5 rounded-full flex items-center justify-center cursor-pointer"
               onClick={() => onAction(itemTrashed ? "delete" : "trash")}
             >
               <TrashIcon className="w-5 h-5" />
             </div>
             {!itemTrashed && (
               <div
-                className="text-gray-600 hover:text-black p-2.5 rounded-full flex items-center justify-center cursor-pointer"
+                className="text-black hover:text-primary p-2.5 rounded-full flex items-center justify-center cursor-pointer"
                 onClick={() => onAction("rename")}
               >
                 <RenameIcon className="w-5 h-5" />
               </div>
             )}
-          </div> */}
+          </div>
         </div>
       )}
     </div>

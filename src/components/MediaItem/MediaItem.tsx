@@ -85,7 +85,7 @@ const MediaItem: React.FC<MediaItemType> = memo(({ file }) => {
 
   return (
     <div
-      className={classNames("h-[100px] bg-black cursor-pointer relative", {
+      className={classNames("h-[100px] bg-bg-dark-grey cursor-pointer relative", {
         "border-4 border-[#3c85ee]": elementSelected || elementMultiSelected,
       })}
       onClick={mediaItemClick}

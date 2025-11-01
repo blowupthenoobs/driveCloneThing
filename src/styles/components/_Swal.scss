@@ -1,15 +1,27 @@
 .swal2-popup {
   font-size: 10px !important;
+  background-color: #333333;
+  color:black;
 
   @media (max-width: 480px) {
     font-size: 13px !important;
   }
 }
 
+.swal2-input {
+  border-color:#434343;
+}
+
+.swal2-input:focus {
+  border-color:#3c85ee;
+}
+
 .swal2-confirm {
   background-color: #3c85ee !important;
+  color:#202020;
 }
 
 .swal2-cancel {
   background-color: red !important;
+  color:#202020;
 }

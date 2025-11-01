@@ -123,7 +123,7 @@ const Medias = memo(
               </svg>
             </a>
             <select
-              className="text-sm font-medium appearance-none bg-white"
+              className="text-sm font-medium appearance-none bg-bg-grey rounded-size1 p-0.5 pl-1.5  text-primary"
               onChange={mediaFilterOnChange}
               value={mediaFilter}
             >

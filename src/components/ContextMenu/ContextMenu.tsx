@@ -129,9 +129,9 @@ const ContextMenu: React.FC<ContextMenuProps> = memo((props) => {
       ["trash", "delete", "restore"].includes(action)
     ) {
       if (folder.parent === "/") {
-        navigate("/trash");
+        navigate("/drive/trash");
       } else {
-        navigate(`/folder-trash/${folder.parent}`);
+        navigate(`/drive/folder-trash/${folder.parent}`);
       }
     }
   };
@@ -158,7 +158,7 @@ const ContextMenu: React.FC<ContextMenuProps> = memo((props) => {
         onClick={stopPropagation}
         ref={wrapperRef}
         className={classNames(
-          "fixed min-w-[215px] bg-white shadow-lg rounded-md z-50 animate-movement",
+          "fixed min-w-[215px] bg-bg-dark-grey shadow-lg rounded-md z-50 animate-movement",
           {
             "opacity-0": !animate,
             "opacity-100": animate,

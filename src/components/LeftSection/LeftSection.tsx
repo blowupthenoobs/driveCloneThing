@@ -110,7 +110,7 @@ const LeftSection = ({
     <div
       ref={wrapperRef}
       className={classNames(
-        "p-6 fixed desktopMode:relative border-r w-[270px] min-w-[270px] bg-white h-full z-20 desktopMode:z-0 animate-movement mt-1.5",
+        "p-6 fixed desktopMode:relative border-r border-bg-grey w-[270px] min-w-[270px] bg-bg-dark-grey h-full z-20 desktopMode:z-0 animate-movement mt-1.5",
         {
           "-left-[270px] desktopMode:left-0": !leftSectionOpen,
           "left-0": leftSectionOpen,

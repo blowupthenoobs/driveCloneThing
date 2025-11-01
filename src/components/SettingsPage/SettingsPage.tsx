@@ -47,7 +47,7 @@ const SettingsPage = () => {
 
         navigate("/");
       } else {
-        navigate("/home");
+        navigate("/drive/home");
       }
     }
   };
@@ -72,7 +72,7 @@ const SettingsPage = () => {
         <div
           ref={wrapperRef}
           className={classNames(
-            "fixed sm:relative px-4 border-r border-gray-secondary w-72 dynamic-height animate-movement bg-white",
+            "fixed sm:relative px-4 border-r border-bg-grey w-72 dynamic-height animate-movement bg-bg-dark-grey",
             {
               "-ml-72 sm:ml-0": !showSidebarMobile,
               "ml-0": showSidebarMobile,
@@ -80,7 +80,7 @@ const SettingsPage = () => {
           )}
         >
           <a
-            onClick={() => navigate("/home")}
+            onClick={() => navigate("/drive/home")}
             className="text-gray-600 hover:text-primary cursor-pointer flex flex-row items-center space-x-1 pt-6"
           >
             <ChevronOutline className="w-6 h-6 rotate-90" />

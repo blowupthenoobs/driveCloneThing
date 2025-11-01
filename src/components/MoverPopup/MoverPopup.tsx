@@ -203,7 +203,7 @@ const MoverPopup = () => {
         </div>
       </div>
       <div
-        className="bg-white w-full max-w-[500px] p-4 rounded-md animate-easy"
+        className="bg-bg-dark-grey w-full max-w-[500px] p-4 rounded-md animate-easy"
         style={{ marginTop: !animate ? "calc(100vh + 480px" : 0 }}
       >
         <div
@@ -213,26 +213,26 @@ const MoverPopup = () => {
         >
           <ArrowBackIcon
             className={classNames("w-7 h-7 cursor-pointer mr-2", {
-              "opacity-50": !parent,
+              "text-primary": !parent,
             })}
             onClick={onBackClick}
           />
           {!multiSelectMode && (
             <input
-              className="w-full py-2 px-3 text-black border border-gray-primary rounded-md text-sm outline-none"
+              className="w-full py-2 px-3 text-black border bg-bg-grey border-bg-dark-grey rounded-md text-sm outline-none"
               placeholder="Search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           )}
           <HomeIconOutline
-            className="w-7 h-7 cursor-pointer ml-2"
+            className="w-7 h-7 cursor-pointer ml-2 text-primary"
             onClick={onHomeClick}
           />
         </div>
         <div>
           <p
-            className="text-lg mt-2 mb-2 max-w-[75%] text-ellipsis overflow-hidden select-none cursor-pointer"
+            className="text-lg mt-2 mb-2 max-w-[75%] text-ellipsis overflow-hidden select-none cursor-pointer text-grey-hover"
             onClick={onTitleClick}
           >
             {headerText}
@@ -244,9 +244,9 @@ const MoverPopup = () => {
               {folderList?.map((folder: FolderInterface) => (
                 <div
                   className={classNames(
-                    "p-2 border-b border-[#ebe9f9] rounded-md flex flex-row items-center",
+                    "p-2 border-b border-bg-grey rounded-md flex flex-row items-center",
                     {
-                      "bg-primary text-white hover:bg-primary-hover":
+                      "bg-primary text-black hover:bg-primary-hover":
                         selectedFolder?._id === folder._id,
                       "hover:bg-white-hover":
                         selectedFolder?._id !== folder._id,
@@ -257,7 +257,7 @@ const MoverPopup = () => {
                 >
                   <FolderIcon
                     className={classNames("w-5 h-5 mr-2 select-none", {
-                      "text-white": selectedFolder?._id === folder._id,
+                      "text-bg-dark-grey": selectedFolder?._id === folder._id,
                       "text-primary": selectedFolder?._id !== folder._id,
                     })}
                   />
@@ -274,7 +274,7 @@ const MoverPopup = () => {
             </div>
           )}
         </div>
-        <div className="mt-4 border border-gray-secondary rounded-md p-4">
+        <div className="mt-4 border border-bg-grey rounded-md p-4">
           <p className="text-sm overflow-hidden text-ellipsis whitespace-nowrap select-none">
             {moveText}
           </p>

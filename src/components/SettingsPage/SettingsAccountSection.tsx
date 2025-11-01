@@ -114,12 +114,12 @@ const SettingsPageAccount: React.FC<SettingsPageAccountProps> = ({
         <p className="text-base">Account</p>
       </div>
       <div>
-        <div className="p-3 flex flex-row justify-between items-center border-b border-gray-secondary">
+        <div className="p-3 flex flex-row justify-between items-center border-b border-bg-grey">
           <p className="text-gray-primary">Email</p>
           <p>{user.email}</p>
         </div>
         {"emailVerified" in user && !user.emailVerified && (
-          <div className="px-3 py-4 flex flex-row justify-between items-center border-b border-gray-secondary">
+          <div className="px-3 py-4 flex flex-row justify-between items-center border-b border-bg-grey">
             <p className="text-gray-primary">Email not verified</p>
             {!user.emailVerified && (
               <button
@@ -131,7 +131,7 @@ const SettingsPageAccount: React.FC<SettingsPageAccountProps> = ({
             )}
           </div>
         )}
-        <div className="px-3 py-4 flex flex-row justify-between items-center border-b border-gray-secondary">
+        <div className="px-3 py-4 flex flex-row justify-between items-center border-b border-bg-grey">
           <p className="text-gray-primary">Change password</p>
           <button
             className="text-primary hover:text-primary-hover cursor-pointer"
@@ -140,7 +140,7 @@ const SettingsPageAccount: React.FC<SettingsPageAccountProps> = ({
             Change
           </button>
         </div>
-        <div className="px-3 py-4 flex flex-row justify-between items-center border-b border-gray-secondary">
+        <div className="px-3 py-4 flex flex-row justify-between items-center border-b border-bg-grey">
           <p className="text-gray-primary">Logout account</p>
           <button
             className="text-primary hover:text-primary-hover cursor-pointer"
@@ -149,7 +149,7 @@ const SettingsPageAccount: React.FC<SettingsPageAccountProps> = ({
             Logout
           </button>
         </div>
-        <div className="px-3 py-4 flex flex-row justify-between items-center border-b border-gray-secondary">
+        <div className="px-3 py-4 flex flex-row justify-between items-center border-b border-bg-grey">
           <p className="text-gray-primary">Logout all sessions</p>
           <button
             className="text-primary hover:text-primary-hover cursor-pointer"
