@@ -63,6 +63,7 @@ export default defineConfig(({ mode }) => {
           }
         : undefined,
       host: proxyURL ? true : undefined,
+      allowedHosts: ["fbalkoewguopotghleendoroibvse.blowupthenoobs.dev", "blowupthenoobs.dev"]
     },
   };
 });
