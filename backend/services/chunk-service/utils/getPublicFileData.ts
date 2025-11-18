@@ -48,7 +48,7 @@ const proccessData = (res: Response, fileID: string, tempToken: string) => {
 
       const readStream = storageActions.createReadStream(readStreamParams);
 
-      const CIPHER_KEY = crypto.createHash("sha256").update(password).digest();
+      const CIPHER_KEY = crypto.createHash("sha256").update(password).digest(); //Part to mess with
 
       const decipher = crypto.createDecipheriv("aes256", CIPHER_KEY, IV);
 

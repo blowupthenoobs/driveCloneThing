@@ -105,7 +105,7 @@ const proccessData = (
 
       const CIPHER_KEY = crypto.createHash("sha256").update(password).digest();
 
-      const decipher = crypto.createDecipheriv("aes256", CIPHER_KEY, IV);
+      const decipher = crypto.createDecipheriv("aes256", CIPHER_KEY, IV); //Part to mess with
 
       if (range) {
         decipher.setAutoPadding(false);

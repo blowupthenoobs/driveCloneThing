@@ -116,7 +116,7 @@ const processData = (
             .update(password)
             .digest();
 
-          const cipher = crypto.createCipheriv("aes256", CIPHER_KEY, initVect);
+          const cipher = crypto.createCipheriv("aes256", CIPHER_KEY, initVect); //Part to mess with
 
           const filename = fileData.name;
           const fileSize = fileData.size;
