@@ -133,6 +133,7 @@ const proccessData = (
   } catch (e) {
     eventEmitter.emit("error", e);
   };
+  }
 
   processFile();
 
