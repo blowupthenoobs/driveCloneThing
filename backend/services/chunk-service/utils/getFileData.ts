@@ -80,12 +80,6 @@ const proccessData = (
 
       if (!currentFile) throw new NotFoundError("Download File Not Found");
 
-      const password = user.getEncryptionKey();
-
-      if (!password) throw new ForbiddenError("Invalid Encryption Key");
-
-      const IV = rangeIV || currentFile.metadata.IV;
-
       const readStreamParams = createGenericParams({
         filePath: currentFile.metadata.filePath,
         Key: currentFile.metadata.s3ID,
@@ -103,18 +97,6 @@ const proccessData = (
         readStream = storageActions.createReadStream(readStreamParams);
       }
 
-      const CIPHER_KEY = crypto.createHash("sha256").update(password).digest();
-
-      const decipher = crypto.createDecipheriv("aes256", CIPHER_KEY, IV); //Part to mess with
-
-      if (range) {
-        decipher.setAutoPadding(false);
-      }
-
-      decipher.on("error", (e: Error) => {
-        eventEmitter.emit("error", e);
-      });
-
       readStream.on("error", (e: Error) => {
         eventEmitter.emit("error", e);
       });
@@ -122,9 +104,8 @@ const proccessData = (
       if (!!range) {
         activeStreams.set(fileID, {
           readStream,
-          decipherStream: decipher,
-          file: currentFile,
-        });
+          file: currentFile
+        } as any);
       }
 
       res.on("error", (e: Error) => {
@@ -140,46 +121,17 @@ const proccessData = (
           `attachment; filename="${sanatizedFilename}"; filename*=UTF-8''${encodedFilename}`
         );
         res.set("Content-Length", currentFile.metadata.size.toString());
-      }
 
-      if (range) {
-        let bytesSent = 0;
-
-        decipher.on("data", (data: Buffer) => {
-          if (bytesSent === 0 && range.skip > 0) {
-            const neededData = data.slice(range.skip, data.length);
-            res.write(neededData);
-            bytesSent += neededData.length;
-          } else if (bytesSent + data.length > range.chunksize) {
-            const currentDataLength = bytesSent + data.length;
-            const difference = currentDataLength - range.chunksize;
-            const neededData = data.slice(0, data.length - difference);
-            res.write(neededData);
-            bytesSent += neededData.length;
-          } else {
-            res.write(data);
-            bytesSent += data.length;
-          }
-        });
-
-        decipher.on("finish", () => {
-          res.end();
-
-          eventEmitter.emit("finish");
-        });
-
-        readStream.pipe(decipher);
-      } else {
-        readStream
-          .pipe(decipher)
+        (readStream as NodeJS.ReadableStream)
           .pipe(res)
-          .on("finish", () => {
-            eventEmitter.emit("finish");
-          });
-      }
-    } catch (e) {
-      eventEmitter.emit("error", e);
-    }
+          .on("finish", ()=> eventEmitter.emit("finish"));
+      } else {
+        (readStream as NodeJS.ReadableStream)
+          .pipe(res)
+          .on("finish", ()=> eventEmitter.emit("finish"));
+      } 
+  } catch (e) {
+    eventEmitter.emit("error", e);
   };
 
   processFile();
