@@ -53,7 +53,7 @@ const fileSchema = new mongoose.Schema({
       },
       IV: {
         type: Buffer,
-        required: true,
+        required: false,
       },
       linkType: String,
       link: String,

@@ -21,6 +21,10 @@ import { getFSStoragePath } from "../../../utils/getFSStoragePath";
 // Also in our fileDB make sure we are actually using File instead
 // Of just modifying data directly so we get validation
 
+import sanitize from "sanitize-filename";
+import { getUniqueFileName } from "../../../utils/getUniqueFileName";
+import { PassThrough } from "stream";
+
 const storageActions = getStorageActions();
 
 type FileInfo = {
@@ -88,20 +92,7 @@ const processData = (
     const uploadFile = (filename: string, fileStream: Stream) => {
       return new Promise<{ filename: string; metadata: FileMetadateInterface }>(
         (resolve, reject) => {
-          const randomFilenameID = uuid.v4();
-
-          const password = user.getEncryptionKey();
-
-          if (!password) throw new ForbiddenError("Invalid Encryption Key");
-
-          const initVect = crypto.randomBytes(16);
-
-          const CIPHER_KEY = crypto
-            .createHash("sha256")
-            .update(password)
-            .digest();
-
-          const cipher = crypto.createCipheriv("aes256", CIPHER_KEY, initVect);
+          const sanitizedname = sanitize(filename);
 
           const metadata = {
             owner: user._id.toString(),
@@ -111,27 +102,31 @@ const processData = (
             thumbnailID: "",
             isVideo: false,
             size,
-            IV: initVect,
             processingFile: true,
           } as FileMetadateInterface;
 
           if (env.dbType === "fs") {
-            metadata.filePath = getFSStoragePath() + randomFilenameID;
+            const storageDirectory = getFSStoragePath();
+            
+            const newName = getUniqueFileName(storageDirectory, sanitizedname);
+            metadata.filePath = storageDirectory + newName; //This is prob related to how I can give everyone their own folder
           } else {
-            metadata.s3ID = randomFilenameID;
+            metadata.s3ID = sanitizedname;
           }
+          
+          const cipher = new PassThrough(); //Needed to psych the writestream thing
 
           const { writeStream, emitter } = storageActions.createWriteStream(
             metadata,
             fileStream.pipe(cipher),
-            randomFilenameID
+            sanitizedname
           );
 
-          writeStream.on("error", (e: Error) => {
-            reject(e);
-          });
+          if(writeStream) {
+            fileStream.pipe(writeStream)
+          }
 
-          cipher.on("error", (e: Error) => {
+          writeStream.on("error", (e: Error) => {
             reject(e);
           });
 
@@ -151,8 +146,6 @@ const processData = (
               resolve({ filename, metadata });
             });
           }
-
-          cipher.pipe(writeStream);
         }
       );
     };
