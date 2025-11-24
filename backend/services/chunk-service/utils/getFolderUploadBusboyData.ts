@@ -1,36 +1,33 @@
-import { Stream } from "stream";
+import { Stream, PassThrough } from "stream";
+import { EventEmitter } from "events";
 import uuid from "uuid";
 import { UserInterface } from "../../../models/user-model";
 import File, {
-  FileInterface,
   FileMetadateInterface,
 } from "../../../models/file-model";
 import env from "../../../enviroment/env";
-import { S3Actions } from "../actions/S3-actions";
-import { FilesystemActions } from "../actions/file-system-actions";
-import ForbiddenError from "../../../utils/ForbiddenError";
-import crypto from "crypto";
+import { getStorageActions } from "../actions/helper-actions";
 import getFileSize from "./getFileSize";
 import imageChecker from "../../../utils/imageChecker";
 import videoChecker from "../../../utils/videoChecker";
 import createVideoThumbnail from "./createVideoThumbnail";
 import createThumbnail from "./createImageThumbnail";
-import { EventEmitter } from "events";
-import { getStorageActions } from "../actions/helper-actions";
-import { RequestTypeFullUser } from "../../../controllers/file-controller";
+import sanitize from "sanitize-filename";
+import { getUniqueFileName } from "../../../utils/getUniqueFileName";
 import { getFSStoragePath } from "../../../utils/getFSStoragePath";
+import { RequestTypeFullUser } from "../../../controllers/file-controller";
+
+const storageActions = getStorageActions();
 
 type FileDataType = {
   name: string;
   size: number;
   type: string;
   path: string;
-  index: number;
+  index: string;
   file: Stream;
-  uploadedFileId: string;
+  uploadedFileId?: string;
 };
-
-const storageActions = getStorageActions();
 
 type dataType = Record<string, FileDataType>;
 
@@ -43,16 +40,11 @@ const processData = (
 
   try {
     const formData = new Map();
-
-    let filesProcessed = 0;
-    let filesToProcess = 0;
-    let parent = "";
-
     const fileDataMap: dataType = {};
 
-    const uploadQueue: { file: Stream; index: string }[] = [];
-
-    let processing = false;
+    let parent = "";
+    let totalFiles = 0;
+    let processed = 0;
 
     const handleFinish = async (
       filename: string,
@@ -61,186 +53,138 @@ const processData = (
       const date = new Date();
 
       let length = 0;
-
       if (env.dbType === "fs" && metadata.filePath) {
-        length = (await getFileSize(metadata.filePath)) as number;
+        length = await getFileSize(metadata.filePath) as number;
       } else {
-        // TODO: Fix this we should be using the encrypted file size
         length = metadata.size;
       }
+
+      const video = videoChecker(filename);
 
       const currentFile = new File({
         filename,
         uploadDate: date.toISOString(),
         length,
-        metadata,
+        metadata: {
+          ...metadata,
+          isVideo: video,
+        },
       });
 
       await currentFile.save();
 
-      const imageCheck = imageChecker(currentFile.filename);
-      const videoCheck = videoChecker(currentFile.filename);
+      const isImage = imageChecker(filename);
 
-      if (videoCheck) {
-        const updatedFile = await createVideoThumbnail(
-          currentFile,
-          filename,
-          user
-        );
-        return updatedFile;
-      } else if (currentFile.length < 15728640 && imageCheck) {
-        const updatedFile = await createThumbnail(currentFile, filename, user);
-        return updatedFile;
-      } else {
-        return currentFile;
+      if (video && env.videoThumbnailsEnabled) {
+        return await createVideoThumbnail(currentFile, filename, user);
       }
+      if (length < 15728640 && isImage) {
+        return await createThumbnail(currentFile, filename, user);
+      }
+
+      return currentFile;
     };
 
-    const uploadFile = (currentFile: { file: Stream; index: string }) => {
+    const uploadFile = (
+      filename: string,
+      fileStream: Stream,
+      index: string,
+      fileSize: number
+    ) => {
       return new Promise<{ filename: string; metadata: FileMetadateInterface }>(
         (resolve, reject) => {
-          const { file, index } = currentFile;
-
-          const fileData = fileDataMap[index];
-
-          const randomFilenameID = uuid.v4();
-
-          const password = user.getEncryptionKey();
-
-          if (!password) throw new ForbiddenError("Invalid Encryption Key");
-
-          const initVect = crypto.randomBytes(16);
-
-          const CIPHER_KEY = crypto
-            .createHash("sha256")
-            .update(password)
-            .digest();
-
-          const cipher = crypto.createCipheriv("aes256", CIPHER_KEY, initVect); //Part to mess with
-
-          const filename = fileData.name;
-          const fileSize = fileData.size;
+          const sanitizedName = sanitize(filename);
 
           const metadata = {
             owner: user._id.toString(),
-            parent: "/",
+            parent: "/", // TODO: use folder path here
             parentList: ["/"].toString(),
             hasThumbnail: false,
             thumbnailID: "",
             isVideo: false,
             size: fileSize,
-            IV: initVect,
             processingFile: true,
           } as FileMetadateInterface;
 
-          if (env.dbType === "fs") {
-            metadata.filePath = getFSStoragePath() + randomFilenameID;
-          } else {
-            metadata.s3ID = randomFilenameID;
-          }
+          const storageDirectory = getFSStoragePath();
+          const newName = getUniqueFileName(storageDirectory, sanitizedName);
 
-          const { writeStream, emitter } = storageActions.createWriteStream(
+          metadata.filePath = storageDirectory + "/" + newName;
+
+          // Replace encryption with a no-op stream:
+          const pass = new PassThrough();
+
+          const { writeStream } = storageActions.createWriteStream(
             metadata,
-            file.pipe(cipher),
-            randomFilenameID
+            fileStream.pipe(pass),
+            sanitizedName
           );
 
-          writeStream.on("error", (e: Error) => {
-            reject(e);
-          });
-
-          cipher.on("error", (e: Error) => {
-            reject(e);
-          });
-
-          cipher.pipe(writeStream);
-
-          if (emitter) {
-            emitter.on("finish", () => {
-              resolve({ filename, metadata });
-            });
-          } else {
-            writeStream.on("finish", () => {
-              resolve({ filename, metadata });
-            });
+          if (writeStream) {
+            fileStream.pipe(writeStream);
           }
+
+          writeStream.on("error", reject);
+          fileStream.on("error", reject);
+
+          writeStream.on("finish", () => {
+            resolve({ filename, metadata });
+          });
         }
       );
     };
 
-    const processQueue = async () => {
-      if (processing) return;
+    const processQueueItem = async (
+      index: string,
+      fileData: FileDataType
+    ) => {
+      const { filename, metadata } = await uploadFile(
+        fileData.name,
+        fileData.file,
+        index,
+        fileData.size
+      );
 
-      processing = true;
+      const file = await handleFinish(filename, metadata);
 
-      try {
-        while (uploadQueue.length > 0) {
-          const currentFile = uploadQueue.shift();
-          const { filename, metadata } = await uploadFile(currentFile!);
-          const file = await handleFinish(filename, metadata);
+      fileDataMap[index].uploadedFileId = file._id!.toString();
 
-          fileDataMap[currentFile!.index] = {
-            ...fileDataMap[currentFile!.index],
-            uploadedFileId: file._id!.toString(),
-          };
+      processed++;
 
-          filesProcessed++;
-
-          if (filesProcessed === filesToProcess) {
-            eventEmitter.emit("finish", { fileDataMap, parent });
-          }
-        }
-      } catch (e) {
-        eventEmitter.emit("error", e);
+      if (processed === totalFiles) {
+        eventEmitter.emit("finish", { fileDataMap, parent });
       }
-
-      processing = false;
     };
 
-    busboy.on("field", (field: any, val: any) => {
-      if (typeof val !== "string" || val !== "undefined") {
-        formData.set(field, val);
-        if (field === "file-data") {
-          const fileData = JSON.parse(val);
-          fileDataMap[fileData.index] = fileData;
-        }
-        if (field === "total-files") {
-          filesToProcess = +val;
-        }
-        if (field === "parent") {
-          parent = val;
-        }
+    busboy.on("field", (field, val) => {
+      formData.set(field, val);
+
+      if (field === "file-data") {
+        const fd = JSON.parse(val);
+        fileDataMap[fd.index] = fd;
+      }
+
+      if (field === "total-files") {
+        totalFiles = Number(val);
+      }
+
+      if (field === "parent") {
+        parent = val;
       }
     });
 
-    busboy.on(
-      "file",
-      (
-        _: string,
-        file: Stream,
-        fileData: {
-          filename: string;
-        }
-      ) => {
-        const index = fileData.filename;
+    busboy.on("file", (_: string, file: Stream, fileData: { filename: string }) => {
+      const index = fileData.filename;
 
-        uploadQueue.push({ file, index });
+      if (!fileDataMap[index]) return;
 
-        processQueue();
-      }
-    );
+      fileDataMap[index].file = file;
 
-    busboy.on("error", (e: Error) => {
-      eventEmitter.emit("error", e);
+      processQueueItem(index, fileDataMap[index]);
     });
 
-    req.on("error", (e: Error) => {
-      eventEmitter.emit("error", e);
-    });
-
-    busboy.on("error", (e: Error) => {
-      eventEmitter.emit("error", e);
-    });
+    busboy.on("error", (e: Error) => eventEmitter.emit("error", e));
+    req.on("error", (e: Error) => eventEmitter.emit("error", e));
 
     req.pipe(busboy);
   } catch (e) {
@@ -255,17 +199,12 @@ const getFolderBusboyData = (
   user: UserInterface,
   req: RequestTypeFullUser
 ) => {
-  return new Promise<{ fileDataMap: dataType; parent: string }>(
-    (resolve, reject) => {
-      const fileEventEmitter = processData(busboy, user, req);
-      fileEventEmitter.on("finish", (data) => {
-        resolve(data);
-      });
-      fileEventEmitter.on("error", (e) => {
-        reject(e);
-      });
-    }
-  );
+  return new Promise<{ fileDataMap: dataType; parent: string }>((resolve, reject) => {
+    const emitter = processData(busboy, user, req);
+
+    emitter.on("finish", resolve);
+    emitter.on("error", reject);
+  });
 };
 
 export default getFolderBusboyData;

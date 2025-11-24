@@ -24,7 +24,6 @@ import { getFSStoragePath } from "../../../utils/getFSStoragePath";
 import sanitize from "sanitize-filename";
 import { getUniqueFileName } from "../../../utils/getUniqueFileName";
 import { PassThrough } from "stream";
-import fs from "fs";
 
 const storageActions = getStorageActions();
 
@@ -111,7 +110,7 @@ const processData = (
 
           const storageDirectory = getFSStoragePath();
           
-          const newName = getUniqueFileName("/drive/", sanitizedname);
+          const newName = getUniqueFileName(storageDirectory, sanitizedname);
           metadata.filePath = storageDirectory + newName; //This is prob related to how I can give everyone their own folder
           
           
