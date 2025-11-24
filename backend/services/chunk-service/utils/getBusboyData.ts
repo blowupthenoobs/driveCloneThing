@@ -24,6 +24,7 @@ import { getFSStoragePath } from "../../../utils/getFSStoragePath";
 import sanitize from "sanitize-filename";
 import { getUniqueFileName } from "../../../utils/getUniqueFileName";
 import { PassThrough } from "stream";
+import fs from "fs";
 
 const storageActions = getStorageActions();
 
@@ -94,6 +95,8 @@ const processData = (
         (resolve, reject) => {
           const sanitizedname = sanitize(filename);
 
+          const initVect = crypto.randomBytes(16);
+
           const metadata = {
             owner: user._id.toString(),
             parent: "/",
@@ -102,17 +105,15 @@ const processData = (
             thumbnailID: "",
             isVideo: false,
             size,
+            IV: initVect,
             processingFile: true,
           } as FileMetadateInterface;
 
-          if (env.dbType === "fs") {
-            const storageDirectory = getFSStoragePath();
-            
-            const newName = getUniqueFileName(storageDirectory, sanitizedname);
-            metadata.filePath = storageDirectory + newName; //This is prob related to how I can give everyone their own folder
-          } else {
-            metadata.s3ID = sanitizedname;
-          }
+          const storageDirectory = getFSStoragePath();
+          
+          const newName = getUniqueFileName("/drive/", sanitizedname);
+          metadata.filePath = storageDirectory + newName; //This is prob related to how I can give everyone their own folder
+          
           
           const cipher = new PassThrough(); //Needed to psych the writestream thing
 
