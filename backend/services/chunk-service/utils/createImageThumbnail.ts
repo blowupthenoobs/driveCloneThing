@@ -3,41 +3,50 @@ import { FileInterface } from "../../../models/file-model";
 import { UserInterface } from "../../../models/user-model";
 import { EventEmitter } from "stream";
 import FileDB from "../../../db/mongoDB/fileDB";
+
 const fileDB = new FileDB();
 
-
-const processData = async (
+const processData = (
   file: FileInterface,
   filename: string,
   user: UserInterface
 ) => {
   const eventEmitter = new EventEmitter();
 
-  try {
-    const thumbnailModel = new Thumbnail({
-      name: filename,
-      owner: user._id,
-      IV: file.metadata.IV,
-      path: file.metadata.filePath,
-      s3ID: file.metadata.s3ID,
-      originalFile: file._id
-    })
+  // Run async logic but return emitter synchronously
+  (async () => {
+    try {
+      // Validate file has a real storage path
+      if (!file.metadata.filePath && !file.metadata.s3ID) {
+        throw new Error("No file path or S3 ID available to reference.");
+      }
 
-    await thumbnailModel.save();
+      // Create a thumbnail document that points to the original file
+      const thumbnailModel = new Thumbnail({
+        name: filename,
+        owner: user._id,
+        IV: file.metadata.IV,
+        path: file.metadata.filePath,
+        s3ID: file.metadata.s3ID
+      });
 
-    const updatedFile = await fileDB.setThumbnail(
-      file._id!.toString(),
-      thumbnailModel._id.toString()
-    );
+      await thumbnailModel.save();
 
-    if(!updatedFile) {
-      throw new Error("Thumbnail not set");
+      // Update the original file to reference this thumbnail
+      const updatedFile = await fileDB.setThumbnail(
+        file._id!.toString(),
+        thumbnailModel._id.toString()
+      );
+
+      if (!updatedFile) {
+        throw new Error("Thumbnail not set");
+      }
+
+      eventEmitter.emit("finish", updatedFile);
+    } catch (e) {
+      eventEmitter.emit("error", e);
     }
-
-    eventEmitter.emit("finish", updatedFile);
-  } catch (e) {
-    eventEmitter.emit("error", e);
-  }
+  })();
 
   return eventEmitter;
 };
@@ -47,12 +56,14 @@ const createThumbnail = (
   filename: string,
   user: UserInterface
 ) => {
-  return new Promise<FileInterface>((resolve, _) => {
+  return new Promise<FileInterface>((resolve) => {
     const eventEmitter = processData(file, filename, user);
+
     eventEmitter.on("error", (e) => {
       console.log("Error creating thumbnail", e);
-      resolve(file);
+      resolve(file); // fallback if thumbnail creation failed
     });
+
     eventEmitter.on("finish", (updatedFile: FileInterface) => {
       resolve(updatedFile);
     });
