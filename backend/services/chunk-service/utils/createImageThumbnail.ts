@@ -1,10 +1,21 @@
+import crypto from "crypto";
 import Thumbnail from "../../../models/thumbnail-model";
+import sharp from "sharp";
 import { FileInterface } from "../../../models/file-model";
 import { UserInterface } from "../../../models/user-model";
+import uuid from "uuid";
+import env from "../../../enviroment/env";
+import { createGenericParams } from "./storageHelper";
+import { S3Actions } from "../actions/S3-actions";
+import { FilesystemActions } from "../actions/file-system-actions";
 import { EventEmitter } from "stream";
 import FileDB from "../../../db/mongoDB/fileDB";
+import { getStorageActions } from "../actions/helper-actions";
+import { getFSStoragePath } from "../../../utils/getFSStoragePath";
 
 const fileDB = new FileDB();
+
+const storageActions = getStorageActions();
 
 const processData = (
   file: FileInterface,
@@ -13,40 +24,91 @@ const processData = (
 ) => {
   const eventEmitter = new EventEmitter();
 
-  // Run async logic but return emitter synchronously
-  (async () => {
-    try {
-      // Validate file has a real storage path
-      if (!file.metadata.filePath && !file.metadata.s3ID) {
-        throw new Error("No file path or S3 ID available to reference.");
-      }
+  try {
+    const password = user.getEncryptionKey();
 
-      // Create a thumbnail document that points to the original file
+    let CIPHER_KEY = crypto.createHash("sha256").update(password!).digest();
+
+    const thumbnailFilename = uuid.v4();
+
+    const thumbnailIV = crypto.randomBytes(16);
+
+    const params = createGenericParams({
+      filePath: file.metadata.filePath,
+      Key: file.metadata.s3ID,
+    });
+
+    const readStream = storageActions.createReadStream(params);
+
+    const { writeStream, emitter } = storageActions.createWriteStream(
+      params,
+      readStream,
+      thumbnailFilename
+    );
+
+    const decipher = crypto.createDecipheriv(
+      "aes256",
+      CIPHER_KEY,
+      file.metadata.IV
+    );
+
+    const imageResize = sharp().resize(300);
+
+    const handleFinish = async () => {
       const thumbnailModel = new Thumbnail({
         name: filename,
         owner: user._id,
-        IV: file.metadata.IV,
-        path: file.metadata.filePath,
-        s3ID: file.metadata.s3ID
+        IV: thumbnailIV,
+        path: getFSStoragePath() + thumbnailFilename,
+        s3ID: thumbnailFilename,
       });
 
       await thumbnailModel.save();
 
-      // Update the original file to reference this thumbnail
       const updatedFile = await fileDB.setThumbnail(
         file._id!.toString(),
         thumbnailModel._id.toString()
       );
 
       if (!updatedFile) {
-        throw new Error("Thumbnail not set");
+        throw new Error("Thumbnail Not Set");
       }
 
       eventEmitter.emit("finish", updatedFile);
-    } catch (e) {
+    };
+
+    const handleError = (e: Error) => {
       eventEmitter.emit("error", e);
+    };
+
+    readStream.on("error", handleError);
+
+    writeStream.on("error", handleError);
+
+    decipher.on("error", handleError);
+
+    imageResize.on("error", handleError);
+
+    const thumbnailCipher = crypto.createCipheriv(
+      "aes256",
+      CIPHER_KEY,
+      thumbnailIV
+    );
+
+    readStream
+      .pipe(decipher)
+      .pipe(imageResize)
+      .pipe(thumbnailCipher)
+      .pipe(writeStream);
+
+    if (emitter) {
+      emitter.on("finish", handleFinish);
+    } else {
+      writeStream.on("finish", handleFinish);
     }
-  })();
+  } catch (e) {
+    eventEmitter.emit("error", e);
+  }
 
   return eventEmitter;
 };
@@ -56,14 +118,12 @@ const createThumbnail = (
   filename: string,
   user: UserInterface
 ) => {
-  return new Promise<FileInterface>((resolve) => {
+  return new Promise<FileInterface>((resolve, _) => {
     const eventEmitter = processData(file, filename, user);
-
     eventEmitter.on("error", (e) => {
       console.log("Error creating thumbnail", e);
-      resolve(file); // fallback if thumbnail creation failed
+      resolve(file);
     });
-
     eventEmitter.on("finish", (updatedFile: FileInterface) => {
       resolve(updatedFile);
     });
