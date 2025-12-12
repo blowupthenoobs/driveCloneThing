@@ -4,218 +4,146 @@ import File, {
   FileInterface,
   FileMetadateInterface,
 } from "../../../models/file-model";
-import uuid from "uuid";
-import crypto from "crypto";
-import ForbiddenError from "../../../utils/ForbiddenError";
-import env from "../../../enviroment/env";
-import { getStorageActions } from "../actions/helper-actions";
+import sanitize from "sanitize-filename";
+import { getUniqueFileName } from "../../../utils/getUniqueFileName";
+import { getFSStoragePath } from "../../../utils/getFSStoragePath";
 import getFileSize from "./getFileSize";
 import imageChecker from "../../../utils/imageChecker";
 import videoChecker from "../../../utils/videoChecker";
 import createVideoThumbnail from "./createVideoThumbnail";
 import createThumbnail from "./createImageThumbnail";
 import { RequestTypeFullUser } from "../../../controllers/file-controller";
-import { getFSStoragePath } from "../../../utils/getFSStoragePath";
-
-// TODO: We should stop using moongoose directly here,
-// Also in our fileDB make sure we are actually using File instead
-// Of just modifying data directly so we get validation
-
-import sanitize from "sanitize-filename";
-import { getUniqueFileName } from "../../../utils/getUniqueFileName";
-import { PassThrough } from "stream";
-
-const storageActions = getStorageActions();
+import ForbiddenError from "../../../utils/ForbiddenError";
 
 type FileInfo = {
   file: FileInterface;
   parent: string;
 };
 
-const processData = (
+const saveToDisk = (
+  fileStream: Stream,
+  fullPath: string
+): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const fs = require("fs");
+    const writeStream = fs.createWriteStream(fullPath);
+
+    fileStream.pipe(writeStream);
+
+    writeStream.on("finish", resolve);
+    writeStream.on("error", reject);
+    fileStream.on("error", reject);
+  });
+};
+
+const handleUpload = async (
+  user: UserInterface,
+  filename: string,
+  fileStream: Stream,
+  parent: string,
+  size: number
+) => {
+  const date = new Date();
+  const cleanName = sanitize(filename);
+
+  const storageDirectory = getFSStoragePath(user, parent);
+  const finalFileName = getUniqueFileName(storageDirectory, cleanName);
+
+  const fullPath = storageDirectory + finalFileName;
+
+  const metadata: FileMetadateInterface = {
+    owner: user._id.toString(),
+    parent,
+    parentList: [parent].toString(),
+    hasThumbnail: false,
+    thumbnailID: "",
+    isVideo: false,
+    size,
+    filePath: fullPath,
+    processingFile: true,
+  };
+
+  await saveToDisk(fileStream, fullPath);
+
+  metadata.size = await getFileSize(fullPath);
+
+  const fileDoc = new File({
+    filename: cleanName,
+    uploadDate: date.toISOString(),
+    length: metadata.size,
+    metadata,
+  });
+
+  await fileDoc.save();
+
+  const isVideo = videoChecker(cleanName);
+  const isImage = imageChecker(cleanName);
+
+  if (isVideo) {
+    const updated = await createVideoThumbnail(fileDoc, cleanName, user);
+    return updated;
+  }
+
+  if (isImage && fileDoc.length < 15728640) {
+    const updated = await createThumbnail(fileDoc, cleanName, user);
+    return updated;
+  }
+
+  return fileDoc;
+};
+
+const processBusboy = (
   busboy: any,
   user: UserInterface,
   req: RequestTypeFullUser
 ) => {
-  const eventEmitter = new EventEmitter();
+  const emitter = new EventEmitter();
 
-  try {
-    let parent = "";
-    let size = 0;
+  let parent = "/";
+  let size = 0;
 
-    const handleFinish = async (
-      filename: string,
-      metadata: FileMetadateInterface
-    ) => {
-      const date = new Date();
+  busboy.on("field", (field: string, val: any) => {
+    if (field === "parent") parent = val;
+    if (field === "size") size = +val;
+  });
 
-      let length = 0;
-
-      if (env.dbType === "fs" && metadata.filePath) {
-        length = (await getFileSize(metadata.filePath)) as number;
-      } else {
-        // TODO: Fix this we should be using the encrypted file size
-        length = metadata.size;
-      }
-
-      const videoCheck = videoChecker(filename);
-
-      const currentFile = new File({
-        filename,
-        uploadDate: date.toISOString(),
-        length,
-        metadata: {
-          ...metadata,
-          isVideo: videoCheck,
-        },
-      });
-
-      await currentFile.save();
-
-      const imageCheck = imageChecker(currentFile.filename);
-
-      if (videoCheck && env.videoThumbnailsEnabled) {
-        const updatedFile = await createVideoThumbnail(
-          currentFile,
-          filename,
-          user
-        );
-        return updatedFile;
-      } else if (currentFile.length < 15728640 && imageCheck) {
-        const updatedFile = await createThumbnail(currentFile, filename, user);
-        return updatedFile;
-      } else {
-        return currentFile;
-      }
-    };
-
-    const uploadFile = (filename: string, fileStream: Stream) => {
-      return new Promise<{ filename: string; metadata: FileMetadateInterface }>(
-        (resolve, reject) => {
-          const sanitizedname = sanitize(filename);
-
-          const initVect = crypto.randomBytes(16);
-
-          const metadata = {
-            owner: user._id.toString(),
-            parent: "/",
-            parentList: ["/"].toString(),
-            hasThumbnail: false,
-            thumbnailID: "",
-            isVideo: false,
-            size,
-            IV: initVect,
-            processingFile: true,
-          } as FileMetadateInterface;
-
-          const storageDirectory = getFSStoragePath();
-          
-          const newName = getUniqueFileName(storageDirectory, sanitizedname);
-          metadata.filePath = storageDirectory + newName; //This is prob related to how I can give everyone their own folder
-          
-          
-          const cipher = new PassThrough(); //Needed to psych the writestream thing
-
-          const { writeStream, emitter } = storageActions.createWriteStream(
-            metadata,
-            fileStream.pipe(cipher),
-            sanitizedname
-          );
-
-          if(writeStream) {
-            fileStream.pipe(writeStream)
-          }
-
-          writeStream.on("error", (e: Error) => {
-            reject(e);
-          });
-
-          fileStream.on("error", (e: Error) => {
-            reject(e);
-          });
-
-          if (emitter) {
-            emitter.on("finish", () => {
-              resolve({ filename, metadata });
-            });
-            emitter.on("error", (e: Error) => {
-              reject(e);
-            });
-          } else {
-            writeStream.on("finish", () => {
-              resolve({ filename, metadata });
-            });
-          }
-        }
-      );
-    };
-
-    const processFile = async (filename: string, fileStream: Stream) => {
+  busboy.on(
+    "file",
+    async (_: string, file: Stream, data: { filename: string }) => {
       try {
-        const { filename: newFilename, metadata } = await uploadFile(
-          filename,
-          fileStream
-        );
-        const file = await handleFinish(newFilename, metadata);
-        eventEmitter.emit("finish", {
+        const fileDoc = await handleUpload(
+          user,
+          data.filename,
           file,
           parent,
-        });
-      } catch (e) {
-        eventEmitter.emit("error", e);
+          size
+        );
+
+        emitter.emit("finish", { file: fileDoc, parent });
+      } catch (err) {
+        emitter.emit("error", err);
       }
-    };
+    }
+  );
 
-    busboy.on("field", (field: any, val: any) => {
-      if (field === "parent") {
-        parent = val;
-      } else if (field === "size") {
-        size = +val;
-      }
-    });
+  busboy.on("error", (e: Error) => emitter.emit("error", e));
+  req.on("error", (e: Error) => emitter.emit("error", e));
 
-    busboy.on(
-      "file",
-      (
-        _: string,
-        file: Stream,
-        filedata: {
-          filename: string;
-        }
-      ) => {
-        processFile(filedata.filename, file);
-      }
-    );
+  req.pipe(busboy);
 
-    busboy.on("error", (e: Error) => {
-      eventEmitter.emit("error", e);
-    });
-
-    req.on("error", (e: Error) => {
-      eventEmitter.emit("error", e);
-    });
-
-    req.pipe(busboy);
-  } catch (e) {
-    eventEmitter.emit("error", e);
-  }
-
-  return eventEmitter;
+  return emitter;
 };
 
 const uploadFileToStorage = (
   busboy: any,
   user: UserInterface,
   req: RequestTypeFullUser
-) => {
-  return new Promise<FileInfo>((resolve, reject) => {
-    const eventEmitter = processData(busboy, user, req);
-    eventEmitter.on("finish", (data) => {
-      resolve(data);
-    });
-    eventEmitter.on("error", (e) => {
-      reject(e);
-    });
+): Promise<FileInfo> => {
+  return new Promise((resolve, reject) => {
+    const emitter = processBusboy(busboy, user, req);
+
+    emitter.on("finish", resolve);
+    emitter.on("error", reject);
   });
 };
 
