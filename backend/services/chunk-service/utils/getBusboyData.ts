@@ -46,25 +46,26 @@ const handleUpload = async (
   const date = new Date();
   const cleanName = sanitize(filename);
 
-  const storageDirectory = getFSStoragePath(user, parent);
+  const storageDirectory = getFSStoragePath();
   const finalFileName = getUniqueFileName(storageDirectory, cleanName);
-
   const fullPath = storageDirectory + finalFileName;
 
   const metadata: FileMetadateInterface = {
     owner: user._id.toString(),
     parent,
     parentList: [parent].toString(),
-    hasThumbnail: false,
-    thumbnailID: "",
-    isVideo: false,
+    hasThumbnail: false,      // ← keep false
+    thumbnailID: "",          // ← keep empty
+    isVideo: videoChecker(cleanName),
     size,
     filePath: fullPath,
     processingFile: true,
   };
 
+  // Save file to disk
   await saveToDisk(fileStream, fullPath);
 
+  // Update size after write
   metadata.size = await getFileSize(fullPath);
 
   const fileDoc = new File({
@@ -76,21 +77,10 @@ const handleUpload = async (
 
   await fileDoc.save();
 
-  const isVideo = videoChecker(cleanName);
-  const isImage = imageChecker(cleanName);
-
-  if (isVideo) {
-    const updated = await createVideoThumbnail(fileDoc, cleanName, user);
-    return updated;
-  }
-
-  if (isImage && fileDoc.length < 15728640) {
-    const updated = await createThumbnail(fileDoc, cleanName, user);
-    return updated;
-  }
-
+  // 🚫 NO thumbnail creation here anymore
   return fileDoc;
 };
+
 
 const processBusboy = (
   busboy: any,
