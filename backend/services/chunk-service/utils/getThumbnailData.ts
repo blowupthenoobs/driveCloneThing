@@ -1,102 +1,122 @@
 import { EventEmitter } from "stream";
 import { Response } from "express";
-import { UserInterface } from "../../../models/user-model";
 import fs from "fs";
 import ffmpeg from "fluent-ffmpeg";
-import { Readable } from "stream";
 
+import { UserInterface } from "../../../models/user-model";
+import File from "../../../models/file-model";
 import ThumbnailDB from "../../../db/mongoDB/thumbnailDB";
-import FileDB from "../../../db/mongoDB/fileDB";
-import NotFoundError from "../../../utils/NotFoundError";
+
 import ForbiddenError from "../../../utils/ForbiddenError";
+import NotFoundError from "../../../utils/NotFoundError";
 import imageChecker from "../../../utils/imageChecker";
 import videoChecker from "../../../utils/videoChecker";
-import { createGenericParams } from "./storageHelper";
-import { getStorageActions } from "../actions/helper-actions";
 
 const thumbnailDB = new ThumbnailDB();
-const fileDB = new FileDB();
-const storageActions = getStorageActions();
 
 const processData = (
   res: Response,
-  thumbnailID: string,
+  id: string,
   user: UserInterface
 ) => {
-  const eventEmitter = new EventEmitter();
+  const emitter = new EventEmitter();
 
   (async () => {
     try {
-      if (!user?._id) throw new ForbiddenError("Invalid user");
+      if (!user?._id) {
+        throw new ForbiddenError("Invalid user");
+      }
 
-      // 1) Try existing thumbnail record (if any)
-      const thumbnail = await thumbnailDB.getThumbnailInfo(
+      /* -------------------------------------------------
+       * Legacy thumbnail lookup
+       * ------------------------------------------------- */
+      const thumb = await thumbnailDB.getThumbnailInfo(
         user._id.toString(),
-        thumbnailID
+        id
       );
 
-      if (thumbnail && thumbnail.path && fs.existsSync(thumbnail.path)) {
-        const rs = fs.createReadStream(thumbnail.path);
-        rs.on("error", e => eventEmitter.emit("error", e));
-        res.on("error", e => eventEmitter.emit("error", e));
-        rs.pipe(res).on("finish", () => eventEmitter.emit("finish"));
+      if (thumb?.path && fs.existsSync(thumb.path)) {
+        const rs = fs.createReadStream(thumb.path);
+        rs.on("error", e => emitter.emit("error", e));
+        rs.pipe(res).on("finish", () => emitter.emit("finish"));
         return;
       }
 
-      // 2) Fallback to original file (thumbnailID should be file id in many routes)
-      // Try to fetch the file using fileDB.getFileInfo (expects fileID, userID)
-      const file = await fileDB.getFileInfo(thumbnailID, user._id.toString());
-      if (!file) throw new NotFoundError("File Not Found");
-
-      const params = createGenericParams({
-        filePath: file.metadata.filePath,
-        Key: file.metadata.s3ID,
+      /* -------------------------------------------------
+       * Resolve FILE
+       * ------------------------------------------------- */
+      let file = await File.findOne({
+        _id: id,
+        "metadata.owner": user._id.toString(),
       });
 
-      const fileStream = storageActions.createReadStream(params);
+      // If ID is actually a thumbnailID, resolve file via metadata
+      if (!file) {
+        file = await File.findOne({
+          "metadata.thumbnailID": id,
+          "metadata.owner": user._id.toString(),
+        });
+      }
 
-      // If image => stream original (no change)
+      if (!file) {
+        throw new NotFoundError("File not found");
+      }
+
+      const filePath = file.metadata.filePath;
+
+      if (!filePath || !fs.existsSync(filePath)) {
+        throw new NotFoundError("File missing on disk");
+      }
+
+      /* -------------------------------------------------
+       * Image → stream original file
+       * ------------------------------------------------- */
       if (imageChecker(file.filename)) {
         res.setHeader("Content-Type", "image/jpeg");
-        fileStream.on("error", e => eventEmitter.emit("error", e));
-        fileStream.pipe(res).on("finish", () => eventEmitter.emit("finish"));
+
+        const rs = fs.createReadStream(filePath);
+        rs.on("error", e => emitter.emit("error", e));
+        rs.pipe(res).on("finish", () => emitter.emit("finish"));
         return;
       }
 
-      // If video => produce a single-frame JPEG on-the-fly
+      /* -------------------------------------------------
+       * Video extract single frame
+       * ------------------------------------------------- */
       if (videoChecker(file.filename)) {
         res.setHeader("Content-Type", "image/jpeg");
 
-        const nodeStream = fileStream as unknown as Readable;
-
-        ffmpeg(nodeStream)
+        ffmpeg(filePath)
           .inputOptions(["-an"])
-          .seekInput(0) // or "1" if you prefer one second in
+          .seekInput(0) // first frame (change to "1" for 1s in)
           .frames(1)
           .outputOptions([
-            "-vf",
-            "scale=320:320:force_original_aspect_ratio=decrease"
+            "-vf scale=320:320:force_original_aspect_ratio=decrease"
           ])
           .format("image2")
-          .on("error", err => eventEmitter.emit("error", err))
+          .on("error", e => emitter.emit("error", e))
           .pipe(res, { end: true })
-          .on("finish", () => eventEmitter.emit("finish"));
+          .on("finish", () => emitter.emit("finish"));
 
         return;
       }
 
-      throw new NotFoundError("Thumbnail not available");
+      throw new NotFoundError("Unsupported file type");
     } catch (err) {
-      eventEmitter.emit("error", err);
+      emitter.emit("error", err);
     }
   })();
 
-  return eventEmitter;
+  return emitter;
 };
 
-const getThumbnailData = (res: Response, thumbnailID: string, user: UserInterface) =>
+const getThumbnailData = (
+  res: Response,
+  id: string,
+  user: UserInterface
+) =>
   new Promise((resolve, reject) => {
-    const e = processData(res, thumbnailID, user);
+    const e = processData(res, id, user);
     e.on("finish", resolve);
     e.on("error", reject);
   });

@@ -42,9 +42,9 @@ const MediaItem: React.FC<MediaItemType> = memo(({ file }) => {
     ...contextMenuState
   } = useContextMenu();
   const lastSelected = useRef(0);
-  const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch(); //Below here is the culprit for non-thumbnailed images not working
   const thumbnail = `${getBackendURL()}/file-service/thumbnail/${
-    file.metadata.thumbnailID
+    file._id
   }`;
 
   // TODO: See if we can memoize this and remove any
