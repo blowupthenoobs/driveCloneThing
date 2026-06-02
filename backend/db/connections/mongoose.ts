@@ -18,10 +18,10 @@ if (env.useDocumentDB === "true") {
       sslCA: fileBuffer,
     });
   } else {
-    mongoose.connect(DBUrl, {});
+    // mongoose.connect(DBUrl, {});
   }
 } else {
-  mongoose.connect(DBUrl, {});
+  // mongoose.connect(DBUrl, {});
 }
 
 export default mongoose;

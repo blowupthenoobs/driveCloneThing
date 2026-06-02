@@ -12,6 +12,11 @@ import tempStorage from "../../tempStorage/tempStorage";
 import FolderService from "../folder-service/folder-service";
 import { FileListQueryType } from "../../types/file-types";
 
+import { getFSStoragePath } from "../../utils/getFSStoragePath";
+import fs from "fs/promises"
+import path from "path";
+import { EntityResolution } from "aws-sdk";
+
 const fileDB = new FileDB();
 const folderDB = new FolderDB();
 const folderService = new FolderService();
@@ -101,11 +106,39 @@ class MongoFileService {
     sortBy: string,
     limit: number
   ) => {
-    const fileList = await fileDB.getList(queryData, sortBy, limit);
+    // const fileList = await fileDB.getList(queryData, sortBy, limit);
 
-    if (!fileList) throw new NotFoundError("File List Not Found");
+    // if (!fileList) throw new NotFoundError("File List Not Found");
 
-    return fileList;
+    const parentDirectory = queryData.parent || "";
+
+    const targetPath = getFSStoragePath() + parentDirectory;
+
+    const entries = await fs.readdir(targetPath, {
+      withFileTypes: true,
+    });
+
+    const files = await Promise.all(
+      entries.map(async (entry) => {
+        const filePath = path.join(targetPath, entry.name);
+        const fileInfo = await fs.stat(filePath);
+
+        console.log(filePath);
+
+        return {
+          _id: filePath,
+          filename: entry.name,
+          uploadDate: fileInfo.mtime,
+          metadata: {
+            thumbnailID: null,
+            isVideo: false,
+          }
+        }
+      })
+    )
+
+    return files;
+    // return fileList;
   };
 
   getDownloadToken = async (user: UserInterface) => {
@@ -137,7 +170,7 @@ class MongoFileService {
   ) => {
     const key = user.getEncryptionKey();
 
-    const decoded = (await jwt.verify(tempToken, env.passwordAccess!)) as any;
+    const decoded = jwt.verify(tempToken, env.passwordAccess!) as any;
 
     const publicKey = decoded.iv;
 

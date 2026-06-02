@@ -38,7 +38,7 @@ const FileItem: React.FC<FileItemProps> = memo((props) => {
   const thumbnailURL = `${getBackendURL()}/file-service/thumbnail/${
     file.metadata.thumbnailID
   }`;
-  const hasThumbnail = file.metadata.hasThumbnail;
+  // const hasThumbnail = file.metadata.hasThumbnail;
   const [thumbnailLoaded, setThumbnailLoaded] = useState(false);
   const dispatch = useAppDispatch();
   const lastSelected = useRef(0);
@@ -53,7 +53,7 @@ const FileItem: React.FC<FileItemProps> = memo((props) => {
   } = useContextMenu();
   const fileExtension = getFileExtension(file.filename, listView ? 3 : 4);
 
-  const imageColor = getFileColor(file.filename);
+  const imageColor = getFileColor(file.filename); //Look at later, very curious about this...
 
   const formattedFilename = capitalize(file.filename);
 
@@ -199,7 +199,7 @@ const FileItem: React.FC<FileItemProps> = memo((props) => {
             }
           )}
         >
-          {hasThumbnail && (
+          {(
             <div
               className={classNames(
                 "w-full min-h-[88px] max-h-[88px] h-full flex",

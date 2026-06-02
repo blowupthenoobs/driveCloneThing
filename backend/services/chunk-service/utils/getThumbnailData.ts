@@ -16,7 +16,7 @@ const thumbnailDB = new ThumbnailDB();
 
 const processData = (
   res: Response,
-  id: string,
+  id: string, //find a way to get this to just be the path string
   user: UserInterface
 ) => {
   const emitter = new EventEmitter();

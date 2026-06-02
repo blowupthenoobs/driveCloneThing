@@ -28,7 +28,8 @@ const AppRouter = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" exact={true} element={<LoginPage />} />
+        {/* <Route path="/" exact={true} element={<LoginPage />} /> */}
+        <Route path="/" exact={true} element={<HomePage />} />
         <Route
           path="/home"
           element={
