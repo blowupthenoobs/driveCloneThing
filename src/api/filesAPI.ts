@@ -23,38 +23,36 @@ export const getFilesListAPI = async ({
   queryKey,
   pageParam,
 }: QueryFunctionContext<[string, QueryKeyParams]>) => {
-  const [
-    _key,
-    {
-      parent = "/",
-      search = "",
-      sortBy = "date_desc",
-      limit = 50,
-      trashMode,
-      mediaMode,
-      mediaFilter,
-    },
-  ] = queryKey;
+  // const [
+  //   _key,
+  //   {
+  //     parent = "/",
+  //     search = "",
+  //     sortBy = "date_desc",
+  //     limit = 50,
+  //     trashMode,
+  //     mediaMode,
+  //     mediaFilter,
+  //   },
+  // ] = queryKey;
 
-  const queryParams: QueryKeyParams = {
-    parent,
-    search,
-    sortBy,
-    limit,
-    trashMode,
-    mediaMode,
-    mediaFilter,
-  };
+  // const queryParams: QueryKeyParams = {
+  //   parent,
+  //   search,
+  //   sortBy,
+  //   limit,
+  //   trashMode,
+  //   mediaMode,
+  //   mediaFilter,
+  // };
 
-  if (pageParam?.startAtDate && pageParam?.startAtName) {
-    queryParams.startAtDate = pageParam.startAtDate;
-    queryParams.startAtName = pageParam.startAtName;
-    queryParams.startAt = true;
-  }
+  // if (pageParam?.startAtDate && pageParam?.startAtName) {
+  //   queryParams.startAtDate = pageParam.startAtDate;
+  //   queryParams.startAtName = pageParam.startAtName;
+  //   queryParams.startAt = true;
+  // }
 
-  const response = await axios.get(`/file-service/list`, {
-    params: queryParams,
-  });
+  const response = await axios.get(`/file-service/list`);
   return response.data;
 };
 
@@ -69,23 +67,24 @@ export const getQuickFilesListAPI = async () => {
 };
 
 export const downloadFileAPI = async (fileID: string) => {
-  await getUserToken();
+  // await getUserToken();
 
   const url = `${getBackendURL()}/file-service/download/${fileID}`;
 
   const link = document.createElement("a");
   document.body.appendChild(link);
   link.href = url;
-  link.setAttribute("type", "hidden");
-  link.setAttribute("download", "true");
+  // link.setAttribute("type", "hidden");
+  // link.setAttribute("download", "true");
+  link.download = "";
   link.click();
 };
 
 export const getVideoTokenAPI = async () => {
-  const response = await axios.get(
-    "/file-service/download/access-token-stream-video"
-  );
-  return response.data;
+  // const response = await axios.get(
+  //   "/file-service/download/access-token-stream-video"
+  // );
+  // return response.data;
 };
 
 export const getSuggestedListAPI = async ({
@@ -93,15 +92,15 @@ export const getSuggestedListAPI = async ({
 }: QueryFunctionContext<
   [string, { searchText: string; trashMode: boolean; mediaMode: boolean }]
 >) => {
-  const [_key, { searchText, trashMode, mediaMode }] = queryKey;
-  const response = await axios.get(`/file-service/suggested-list`, {
-    params: {
-      search: searchText,
-      trashMode,
-      mediaMode,
-    },
-  });
-  return response.data;
+  // const [_key, { searchText, trashMode, mediaMode }] = queryKey;
+  // const response = await axios.get(`/file-service/suggested-list`, {
+  //   params: {
+  //     search: searchText,
+  //     trashMode,
+  //     mediaMode,
+  //   },
+  // });
+  // return response.data;
 };
 
 export const getPublicFileInfoAPI = async (

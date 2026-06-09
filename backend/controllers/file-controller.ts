@@ -229,26 +229,38 @@ class FileController {
       // const userID = req.user._id;
       const query = req.query;
 
-      const search = (query.search as string) || undefined;
-      const parent = (query.parent as string) || "/";
+      // const search = (query.search as string) || undefined;
+      // const parent = (query.parent as string) || "/";
       const limit = Number.parseInt(query.limit as string) || 50;
       const sortBy = (query.sortBy as string) || "date_desc";
-      const startAtDate = (query.startAtDate as string) || undefined;
-      const startAtName = (query.startAtName as string) || undefined;
-      const trashMode = query.trashMode === "true";
-      const mediaMode = query.mediaMode === "true";
-      const mediaFilter = (query.mediaFilter as string) || "all";
+      // const startAtDate = (query.startAtDate as string) || undefined;
+      // const startAtName = (query.startAtName as string) || undefined;
+      // const trashMode = query.trashMode === "true";
+      // const mediaMode = query.mediaMode === "true";
+      // const mediaFilter = (query.mediaFilter as string) || "all";
       
+      // const queryData: FileListQueryType = {
+      //   userID: "",
+      //   search,
+      //   parent,
+      //   startAtDate,
+      //   startAtName,
+      //   trashMode,
+      //   mediaMode,
+      //   sortBy,
+      //   mediaFilter,
+      // };
+
       const queryData: FileListQueryType = {
         userID: "",
-        search,
-        parent,
-        startAtDate,
-        startAtName,
-        trashMode,
-        mediaMode,
         sortBy,
-        mediaFilter,
+        search: undefined,
+        parent: "",
+        startAtDate: undefined,
+        startAtName: undefined,
+        trashMode: false,
+        mediaMode: false,
+        mediaFilter: ""
       };
 
       const fileList = await fileService.getList(queryData, sortBy, limit);
