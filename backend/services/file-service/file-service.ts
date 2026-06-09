@@ -109,6 +109,7 @@ class MongoFileService {
     // const fileList = await fileDB.getList(queryData, sortBy, limit);
 
     // if (!fileList) throw new NotFoundError("File List Not Found");
+    console.log("give me some listing");
 
     const parentDirectory = queryData.parent || "";
 
@@ -119,7 +120,7 @@ class MongoFileService {
     });
 
     const files = await Promise.all(
-      entries.map(async (entry) => {
+      entries.filter(entry => entry.isFile()).map(async (entry) => {
         const filePath = path.join(targetPath, entry.name);
         const fileInfo = await fs.stat(filePath);
 

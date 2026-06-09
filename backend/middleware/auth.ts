@@ -24,17 +24,22 @@ type userAccessType = {
 
 const auth = async (req: RequestType, res: Response, next: NextFunction) => {
   try {
-    const accessToken = req.cookies["access-token"];
+    // const accessToken = req.cookies["access-token"];
 
-    if (!accessToken) throw new Error("No Access Token");
+    // if (!accessToken) throw new Error("No Access Token");
 
-    const decoded = jwt.verify(accessToken, env.passwordAccess!) as jwtType;
+    // const decoded = jwt.verify(accessToken, env.passwordAccess!) as jwtType;
 
-    const user = decoded.user;
+    // const user = decoded.user;
 
-    if (!user) throw new Error("No User");
+    // if (!user) throw new Error("No User");
 
-    req.user = user;
+    // req.user = user;
+
+    req.user = {
+      _id: "local-user",
+      email: "local"
+    }
 
     next();
   } catch (e: unknown) {

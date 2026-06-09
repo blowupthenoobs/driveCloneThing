@@ -67,21 +67,18 @@ router.get(
 
 router.get(
   "/file-service/quick-list",
-  auth,
   getQuickListValidationRules,
-  fileController.getQuickList
+  // fileController.getQuickList
 );
 
 router.get(
   "/file-service/list",
-  auth,
   getListValidationRules,
   fileController.getList
 );
 
 router.get(
   "/file-service/download/access-token-stream-video",
-  authFullUser,
   fileController.getAccessTokenStreamVideo
 );
 
@@ -100,7 +97,6 @@ router.delete(
 
 router.get(
   "/file-service/download/:id",
-  authFullUser,
   downloadFileValidationRules,
   fileController.downloadFile
 );

@@ -220,12 +220,13 @@ class FileController {
   };
 
   getList = async (req: RequestType, res: Response, next: NextFunction) => {
-    if (!req.user) {
-      return;
-    }
-
+    // if (!req.user) {
+    //   return;
+    // }
+    console.log("hit file controller");
+    
     try {
-      const userID = req.user._id;
+      // const userID = req.user._id;
       const query = req.query;
 
       const search = (query.search as string) || undefined;
@@ -237,9 +238,9 @@ class FileController {
       const trashMode = query.trashMode === "true";
       const mediaMode = query.mediaMode === "true";
       const mediaFilter = (query.mediaFilter as string) || "all";
-
+      
       const queryData: FileListQueryType = {
-        userID,
+        userID: "",
         search,
         parent,
         startAtDate,

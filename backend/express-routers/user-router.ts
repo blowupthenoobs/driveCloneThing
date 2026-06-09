@@ -37,7 +37,14 @@ router.post(
   userController.createUser
 );
 
-router.post("/user-service/get-token", authRefresh, userController.getToken);
+// router.post("/user-service/get-token", authRefresh, userController.getToken);
+router.post(
+  "/user-service/get-token",
+  (req, res) => {
+    console.log("fake token hit");
+    res.status(200).json(({}));
+  }
+)
 
 // PATCH
 
