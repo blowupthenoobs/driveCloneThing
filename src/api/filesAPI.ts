@@ -23,40 +23,39 @@ export const getFilesListAPI = async ({
   queryKey,
   pageParam,
 }: QueryFunctionContext<[string, QueryKeyParams]>) => {
-  // const [
-  //   _key,
-  //   {
-  //     parent = "/",
-  //     search = "",
-  //     sortBy = "date_desc",
-  //     limit = 50,
-  //     trashMode,
-  //     mediaMode,
-  //     mediaFilter,
-  //   },
-  // ] = queryKey;
+  const [
+    _key,
+    {
+      parent = "/",
+      search = "",
+      sortBy = "date_desc",
+      limit = 50,
+      trashMode,
+      mediaMode,
+      mediaFilter,
+    },
+  ] = queryKey;
 
-  // const queryParams: QueryKeyParams = {
-  //   parent,
-  //   search,
-  //   sortBy,
-  //   limit,
-  //   trashMode,
-  //   mediaMode,
-  //   mediaFilter,
-  // };
+  const queryParams: QueryKeyParams = {
+    parent,
+    search,
+    sortBy,
+    limit,
+    trashMode,
+    mediaMode,
+    mediaFilter,
+  };
 
-  // if (pageParam?.startAtDate && pageParam?.startAtName) {
-  //   queryParams.startAtDate = pageParam.startAtDate;
-  //   queryParams.startAtName = pageParam.startAtName;
-  //   queryParams.startAt = true;
-  // }
+  if (pageParam?.startAtDate && pageParam?.startAtName) {
+    queryParams.startAtDate = pageParam.startAtDate;
+    queryParams.startAtName = pageParam.startAtName;
+    queryParams.startAt = true;
+  }
 
-  // const response = await axios.get(`/file-service/list`, {
-  //   params: queryParams,
-  // });
-  // return response.data;
-  return null;
+  const response = await axios.get(`/file-service/list`, {
+    params: queryParams,
+  });
+  return response.data;
 };
 
 export const getQuickFilesListAPI = async () => {
