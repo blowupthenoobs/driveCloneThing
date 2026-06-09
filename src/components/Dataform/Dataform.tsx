@@ -48,7 +48,6 @@ const DataForm = memo(
     const isLoading =
       isLoadingFiles ||
       isLoadingFolders ||
-      isLoadingQuickItems ||
       isLoadingFolder;
 
     useEffect(() => {
@@ -114,7 +113,7 @@ const DataForm = memo(
               <MultiSelectBar />
             </div>
 
-            <QuickAccess />
+            {/* <QuickAccess /> */}
 
             {isTrash && (
               <div
