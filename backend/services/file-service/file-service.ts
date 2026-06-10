@@ -109,8 +109,6 @@ class MongoFileService {
     // const fileList = await fileDB.getList(queryData, sortBy, limit);
 
     // if (!fileList) throw new NotFoundError("File List Not Found");
-    console.log("give me some listing");
-
     const parentDirectory = queryData.parent || "";
 
     const targetPath = getFSStoragePath() + parentDirectory;

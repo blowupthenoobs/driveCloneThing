@@ -48,7 +48,6 @@ export const getFilesListAPI = async () => {
   //   queryParams.startAtName = pageParam.startAtName;
   //   queryParams.startAt = true;
   // }
-
   const response = await axios.get(`/file-service/list`);
   return response.data;
 };

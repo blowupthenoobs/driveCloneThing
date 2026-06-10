@@ -29,7 +29,6 @@ router.get(
 
 router.get(
   "/folder-service/list",
-  auth,
   getFolderListValidationRules,
   folderController.getFolderList
 );

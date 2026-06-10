@@ -136,22 +136,22 @@ class FolderController {
     }
 
     try {
-      const user = req.user;
-      const query = req.query;
+      // const user = req.user;
+      // const query = req.query;
 
-      const search = (query.search as string) || undefined;
-      const parent = (query.parent as string) || "/";
-      const sortBy = (query.sortBy as string) || "date_desc";
-      const trashMode = query.trashMode === "true";
+      // const search = (query.search as string) || undefined;
+      // const parent = (query.parent as string) || "/";
+      // const sortBy = (query.sortBy as string) || "date_desc";
+      // const trashMode = query.trashMode === "true";
 
-      const queryData: FolderListQueryType = {
-        userID: user._id.toString(),
-        search,
-        parent,
-        trashMode,
-      };
+      // const queryData: FolderListQueryType = {
+      //   userID: user._id.toString(),
+      //   search,
+      //   parent,
+      //   trashMode,
+      // };
 
-      const folderList = await folderService.getFolderList(queryData, sortBy);
+      const folderList = await folderService.getFolderList();
 
       res.send(folderList);
     } catch (e) {

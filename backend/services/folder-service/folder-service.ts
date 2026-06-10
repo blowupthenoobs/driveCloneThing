@@ -5,6 +5,10 @@ import FolderDB from "../../db/mongoDB/folderDB";
 import { FolderListQueryType } from "../../types/folder-types";
 import UserDB from "../../db/mongoDB/userDB";
 
+import fs from "fs/promises";
+import path from "path";
+import { getFSStoragePath } from "../../utils/getFSStoragePath";
+
 type userAccessType = {
   _id: string;
   emailVerified: boolean;
@@ -50,12 +54,26 @@ class FolderService {
     return currentFolder;
   };
 
-  getFolderList = async (queryData: FolderListQueryType, sortBy: string) => {
-    const folderList = await folderDB.getFolderList(queryData, sortBy);
+  getFolderList = async () => {
+    // const parentDirectory = queryData.parent || "";
+    const parentDirectory = "/";
 
-    if (!folderList) throw new NotFoundError("Folder List Not Found Error");
+    const targetPath = getFSStoragePath() + parentDirectory;
 
-    return folderList;
+    const entries = await fs.readdir(targetPath, {
+      withFileTypes: true,
+    });
+
+    const folders = await Promise.all(
+      entries.filter(entry => entry.isDirectory()).map(async (entry) => ({
+          _id: path.join(targetPath, entry.name),
+          name: entry.name,
+          parent: "/",
+          createdAt: 0,
+      }))
+    )
+    
+    return folders;
   };
 
   renameFolder = async (userID: string, folderID: string, title: string) => {

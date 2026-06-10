@@ -16,16 +16,17 @@ interface QueryKeyParams {
 export const getFoldersListAPI = async ({
   queryKey,
 }: QueryFunctionContext<[string, QueryKeyParams]>) => {
-  const [_key, { parent, search, sortBy, limit, trashMode }] = queryKey;
-  const response = await axios.get(`/folder-service/list`, {
-    params: {
-      parent,
-      search,
-      sortBy,
-      limit,
-      trashMode,
-    },
-  });
+  // const [_key, { parent, search, sortBy, limit, trashMode }] = queryKey;
+  // const response = await axios.get(`/folder-service/list`, {
+  //   params: {
+  //     parent,
+  //     search,
+  //     sortBy,
+  //     limit,
+  //     trashMode,
+  //   },
+  // });
+  const response = await axios.get(`/folder-service/list`);
   return response.data;
 };
 
