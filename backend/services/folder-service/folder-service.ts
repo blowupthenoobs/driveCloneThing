@@ -56,22 +56,19 @@ class FolderService {
 
   getFolderList = async () => {
     // const parentDirectory = queryData.parent || "";
-    const parentDirectory = "/";
 
-    const targetPath = getFSStoragePath() + parentDirectory;
+    const targetPath = getFSStoragePath();
 
     const entries = await fs.readdir(targetPath, {
       withFileTypes: true,
     });
 
-    const folders = await Promise.all(
-      entries.filter(entry => entry.isDirectory()).map(async (entry) => ({
+    const folders = entries.filter(entry => entry.isDirectory()).map(entry => ({
           _id: path.join(targetPath, entry.name),
           name: entry.name,
           parent: "/",
-          createdAt: 0,
-      }))
-    )
+          createdAt: new Date(),
+      }));
     
     return folders;
   };
