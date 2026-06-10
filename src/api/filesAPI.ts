@@ -19,10 +19,7 @@ interface QueryKeyParams {
 
 // GET
 
-export const getFilesListAPI = async ({
-  queryKey,
-  pageParam,
-}: QueryFunctionContext<[string, QueryKeyParams]>) => {
+export const getFilesListAPI = async () => {
   // const [
   //   _key,
   //   {
