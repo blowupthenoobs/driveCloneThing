@@ -131,9 +131,9 @@ class FolderController {
     res: Response,
     next: NextFunction
   ) => {
-    if (!req.user) {
-      return;
-    }
+    // if (!req.user) {
+    //   return;
+    // }
 
     try {
       // const user = req.user;
