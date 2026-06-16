@@ -90,6 +90,7 @@ const FolderItem: React.FC<FolderItemProps> = memo((props) => {
       if (isTrash) {
         navigate(`/folder-trash/${folder._id}`);
       } else {
+        console.log(`/folder/${folder._id}`);
         navigate(`/folder/${folder._id}`);
       }
     }

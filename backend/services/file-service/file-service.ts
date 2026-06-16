@@ -122,7 +122,7 @@ class MongoFileService {
         const filePath = path.join(targetPath, entry.name);
         const fileInfo = await fs.stat(filePath);
 
-        console.log(filePath);
+        // console.log(filePath);
 
         return {
           _id: filePath,

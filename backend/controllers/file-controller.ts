@@ -223,7 +223,7 @@ class FileController {
     // if (!req.user) {
     //   return;
     // }
-    console.log("hit file controller");
+    // console.log("hit file controller");
     
     try {
       // const userID = req.user._id;

@@ -1,5 +1,5 @@
 import { UseQueryResult, useQuery, useQueryClient } from "react-query";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import {
   getFolderInfoAPI,
   getFoldersListAPI,
@@ -13,15 +13,20 @@ export const useFolders = (enabled = true) => {
   const params = useParams();
   const sortBy = useAppSelector((state) => state.filter.sortBy);
   const { isTrash } = useUtils();
+
+  const location = useLocation();
+  let directory = location.pathname;
+
+  if(directory.indexOf("home") === 0)
+    directory = directory.substring(5);
+  if(directory.indexOf("folder") === 0)
+    directory = directory.substring(7);
+
   const foldersReactQuery: UseQueryResult<FolderInterface[]> = useQuery(
     [
       "folders",
       {
-        parent: params.id || "/",
-        search: params.query || "",
-        sortBy,
-        limit: undefined,
-        trashMode: isTrash,
+        path: directory,
       },
     ],
     getFoldersListAPI,

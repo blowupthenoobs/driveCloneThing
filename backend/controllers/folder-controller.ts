@@ -137,10 +137,10 @@ class FolderController {
 
     try {
       // const user = req.user;
-      // const query = req.query;
+      const query = req.query;
 
       // const search = (query.search as string) || undefined;
-      // const parent = (query.parent as string) || "/";
+      const parent = (query.path as string) || "/";
       // const sortBy = (query.sortBy as string) || "date_desc";
       // const trashMode = query.trashMode === "true";
 
@@ -151,7 +151,7 @@ class FolderController {
       //   trashMode,
       // };
 
-      const folderList = await folderService.getFolderList();
+      const folderList = await folderService.getFolderList(parent);
 
       res.send(folderList);
     } catch (e) {

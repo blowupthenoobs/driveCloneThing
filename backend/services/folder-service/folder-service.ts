@@ -9,6 +9,8 @@ import fs from "fs/promises";
 import path from "path";
 import { getFSStoragePath } from "../../utils/getFSStoragePath";
 
+import { useLocation } from "react-router-dom";
+
 type userAccessType = {
   _id: string;
   emailVerified: boolean;
@@ -54,21 +56,35 @@ class FolderService {
     return currentFolder;
   };
 
-  getFolderList = async () => {
+  getFolderList = async (currentPath: string = "") => {
     // const parentDirectory = queryData.parent || "";
 
-    const targetPath = getFSStoragePath();
+    const initialPath = getFSStoragePath();
+    const trimSize = initialPath.length;
+    let targetPath = initialPath;
+
+    console.log("the current path is " + currentPath);
+
+    if(currentPath != "")
+      targetPath = path.join(initialPath, currentPath);
+    // console.log("FSStoragePath is " + initialPath.length.toString() + " digits long");
+
 
     const entries = await fs.readdir(targetPath, {
       withFileTypes: true,
     });
 
+    // const temp = path.join(initialPath, "folder");
+    // console.log(temp.substring(getFSStoragePath().length));
+
     const folders = entries.filter(entry => entry.isDirectory()).map(entry => ({
-          _id: path.join(targetPath, entry.name),
+          _id: (path.join(targetPath, entry.name).slice(trimSize)),
           name: entry.name,
           parent: "/",
           createdAt: new Date(),
       }));
+
+    // console.log(folders[0]._id);
     
     return folders;
   };
