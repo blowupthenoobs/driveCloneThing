@@ -106,7 +106,7 @@ class MongoFileService {
     const trimSize = initialPath.length;
     let targetPath = initialPath;
 
-    console.log(targetPath);
+    // console.log("the current path is " + currentPath + " for files");
 
     if(currentPath != "")
       targetPath = path.join(initialPath, currentPath);

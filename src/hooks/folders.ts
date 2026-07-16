@@ -17,10 +17,12 @@ export const useFolders = (enabled = true) => {
   const location = useLocation();
   let directory = location.pathname;
 
-  if(directory.indexOf("home") === 0)
+  if(directory.indexOf("/home") === 0)
     directory = directory.substring(5);
-  if(directory.indexOf("folder") === 0)
+  if(directory.indexOf("/folder") === 0)
     directory = directory.substring(7);
+
+  // console.log("the current directory is: " + directory); //Remember this is frontend, won't go to console but in the inspect element
 
   const foldersReactQuery: UseQueryResult<FolderInterface[]> = useQuery(
     [

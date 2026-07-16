@@ -144,13 +144,6 @@ class FolderController {
       // const sortBy = (query.sortBy as string) || "date_desc";
       // const trashMode = query.trashMode === "true";
 
-      // const queryData: FolderListQueryType = {
-      //   userID: user._id.toString(),
-      //   search,
-      //   parent,
-      //   trashMode,
-      // };
-
       const folderList = await folderService.getFolderList(parent);
 
       res.send(folderList);

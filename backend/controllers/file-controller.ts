@@ -219,44 +219,25 @@ class FileController {
     }
   };
 
-  getList = async (req: RequestType, res: Response, next: NextFunction) => {
+  getList = async (
+    req: RequestType,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
       // const userID = req.user._id;
       const query = req.query;
 
       // const search = (query.search as string) || undefined;
-      const parent = (query.parent as string) || "/";
-      const limit = Number.parseInt(query.limit as string) || 50;
-      const sortBy = (query.sortBy as string) || "date_desc";
-      // const startAtDate = (query.startAtDate as string) || undefined;
-      // const startAtName = (query.startAtName as string) || undefined;
-      // const trashMode = query.trashMode === "true";
-      // const mediaMode = query.mediaMode === "true";
-      // const mediaFilter = (query.mediaFilter as string) || "all";
-      
-      // const queryData: FileListQueryType = {
-      //   userID: "",
-      //   search,
-      //   parent,
-      //   startAtDate,
-      //   startAtName,
-      //   trashMode,
-      //   mediaMode,
-      //   sortBy,
-      //   mediaFilter,
-      // };
+      const parent = (query.path as string) || "/";
 
-      // const queryData: FileListQueryType = {
-      //   userID: "",
-      //   sortBy,
-      //   search: undefined,
-      //   parent: "",
-      //   startAtDate: undefined,
-      //   startAtName: undefined,
-      //   trashMode: false,
-      //   mediaMode: false,
-      //   mediaFilter: ""
-      // };
+      // console.log("the current parent directory is: " + parent);
+
+      // console.log("the current query is: ");
+      // console.log(query);
+      // console.log(res);
+      // const limit = Number.parseInt(query.limit as string) || 50;
+      // const sortBy = (query.sortBy as string) || "date_desc";
 
       const fileList = await fileService.getList(parent);
 

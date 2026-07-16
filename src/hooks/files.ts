@@ -36,9 +36,9 @@ export const useFiles = (enabled = true) => {
   const location = useLocation();
   let directory = location.pathname;
 
-  if(directory.indexOf("home") === 0)
+  if(directory.indexOf("/home") === 0)
     directory = directory.substring(5);
-  if(directory.indexOf("folder") === 0)
+  if(directory.indexOf("/folder") === 0)
     directory = directory.substring(7);
 
   const filesReactQuery: UseInfiniteQueryResult<FileInterface[]> =
@@ -46,40 +46,11 @@ export const useFiles = (enabled = true) => {
       [
         "files",
         {
-          parent: params.id || "/",
-          search: params.query || "",
-          sortBy,
-          limit,
-          trashMode: isTrash,
-          mediaMode: isMedia,
-          mediaFilter: mediaFilter,
+          path: directory,
         },
       ],
       getFilesListAPI,
-      {
-        getNextPageParam: (lastPage, pages) => {
-          const lastElement = lastPage[lastPage.length - 1];
-          const hasPageWithoutMaxItemLength = pages.some(
-            (page) => page.length < limit
-          );
-          if (!lastElement || hasPageWithoutMaxItemLength) return undefined;
-          return {
-            startAtDate: lastElement.uploadDate,
-            startAtName: lastElement.filename,
-          };
-        },
-        getPreviousPageParam: (firstPage, pages) => {
-          const firstElement = firstPage[0];
-          if (!firstElement) return undefined;
-          return {
-            startAtDate: firstElement.uploadDate,
-            startAtName: firstElement.filename,
-          };
-        },
-        enabled,
-        refetchOnWindowFocus: false,
-        refetchOnReconnect: false,
-      }
+      {enabled, refetchOnWindowFocus: false, refetchOnReconnect: false}
     );
 
   return { ...filesReactQuery };

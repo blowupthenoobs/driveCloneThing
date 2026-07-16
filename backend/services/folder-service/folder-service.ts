@@ -57,7 +57,6 @@ class FolderService {
   };
 
   getFolderList = async (currentPath: string = "") => {
-    // const parentDirectory = queryData.parent || "";
 
     const initialPath = getFSStoragePath();
     const trimSize = initialPath.length;
@@ -67,15 +66,11 @@ class FolderService {
 
     if(currentPath != "")
       targetPath = path.join(initialPath, currentPath);
-    // console.log("FSStoragePath is " + initialPath.length.toString() + " digits long");
 
 
     const entries = await fs.readdir(targetPath, {
       withFileTypes: true,
     });
-
-    // const temp = path.join(initialPath, "folder");
-    // console.log(temp.substring(getFSStoragePath().length));
 
     const folders = entries.filter(entry => entry.isDirectory()).map(entry => ({
           _id: (path.join(targetPath, entry.name).slice(trimSize)),
