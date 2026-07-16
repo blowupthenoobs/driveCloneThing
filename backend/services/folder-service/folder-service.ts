@@ -63,7 +63,7 @@ class FolderService {
     const trimSize = initialPath.length;
     let targetPath = initialPath;
 
-    console.log("the current path is " + currentPath);
+    // console.log("the current path is " + currentPath);
 
     if(currentPath != "")
       targetPath = path.join(initialPath, currentPath);

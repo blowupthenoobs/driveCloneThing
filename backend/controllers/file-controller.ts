@@ -220,17 +220,12 @@ class FileController {
   };
 
   getList = async (req: RequestType, res: Response, next: NextFunction) => {
-    // if (!req.user) {
-    //   return;
-    // }
-    // console.log("hit file controller");
-    
     try {
       // const userID = req.user._id;
       const query = req.query;
 
       // const search = (query.search as string) || undefined;
-      // const parent = (query.parent as string) || "/";
+      const parent = (query.parent as string) || "/";
       const limit = Number.parseInt(query.limit as string) || 50;
       const sortBy = (query.sortBy as string) || "date_desc";
       // const startAtDate = (query.startAtDate as string) || undefined;
@@ -251,19 +246,19 @@ class FileController {
       //   mediaFilter,
       // };
 
-      const queryData: FileListQueryType = {
-        userID: "",
-        sortBy,
-        search: undefined,
-        parent: "",
-        startAtDate: undefined,
-        startAtName: undefined,
-        trashMode: false,
-        mediaMode: false,
-        mediaFilter: ""
-      };
+      // const queryData: FileListQueryType = {
+      //   userID: "",
+      //   sortBy,
+      //   search: undefined,
+      //   parent: "",
+      //   startAtDate: undefined,
+      //   startAtName: undefined,
+      //   trashMode: false,
+      //   mediaMode: false,
+      //   mediaFilter: ""
+      // };
 
-      const fileList = await fileService.getList(queryData, sortBy, limit);
+      const fileList = await fileService.getList(parent);
 
       res.send(fileList);
     } catch (e) {

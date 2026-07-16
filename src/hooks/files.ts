@@ -4,7 +4,7 @@ import {
   useInfiniteQuery,
   useQuery,
 } from "react-query";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import {
   getFilesListAPI,
   getQuickFilesListAPI,
@@ -32,6 +32,15 @@ export const useFiles = (enabled = true) => {
   const mediaFilter = useAppSelector((state) => state.filter.mediaFilter);
   const { isTrash, isMedia } = useUtils();
   const limit = isMedia ? 100 : 50;
+
+  const location = useLocation();
+  let directory = location.pathname;
+
+  if(directory.indexOf("home") === 0)
+    directory = directory.substring(5);
+  if(directory.indexOf("folder") === 0)
+    directory = directory.substring(7);
+
   const filesReactQuery: UseInfiniteQueryResult<FileInterface[]> =
     useInfiniteQuery(
       [

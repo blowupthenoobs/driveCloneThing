@@ -101,17 +101,15 @@ class MongoFileService {
     return quickList;
   };
 
-  getList = async (
-    queryData: FileListQueryType,
-    sortBy: string,
-    limit: number
-  ) => {
-    // const fileList = await fileDB.getList(queryData, sortBy, limit);
+  getList = async (currentPath: string = "") => {
+    const initialPath = getFSStoragePath();
+    const trimSize = initialPath.length;
+    let targetPath = initialPath;
 
-    // if (!fileList) throw new NotFoundError("File List Not Found");
-    const parentDirectory = queryData.parent || "";
+    console.log(targetPath);
 
-    const targetPath = getFSStoragePath() + parentDirectory;
+    if(currentPath != "")
+      targetPath = path.join(initialPath, currentPath);
 
     const entries = await fs.readdir(targetPath, {
       withFileTypes: true,
@@ -125,7 +123,7 @@ class MongoFileService {
         // console.log(filePath);
 
         return {
-          _id: filePath,
+          _id: (path.join(targetPath, entry.name).slice(trimSize)),
           filename: entry.name,
           uploadDate: fileInfo.mtime,
           metadata: {

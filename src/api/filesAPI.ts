@@ -19,36 +19,16 @@ interface QueryKeyParams {
 
 // GET
 
-export const getFilesListAPI = async () => {
-  // const [
-  //   _key,
-  //   {
-  //     parent = "/",
-  //     search = "",
-  //     sortBy = "date_desc",
-  //     limit = 50,
-  //     trashMode,
-  //     mediaMode,
-  //     mediaFilter,
-  //   },
-  // ] = queryKey;
-
-  // const queryParams: QueryKeyParams = {
-  //   parent,
-  //   search,
-  //   sortBy,
-  //   limit,
-  //   trashMode,
-  //   mediaMode,
-  //   mediaFilter,
-  // };
-
-  // if (pageParam?.startAtDate && pageParam?.startAtName) {
-  //   queryParams.startAtDate = pageParam.startAtDate;
-  //   queryParams.startAtName = pageParam.startAtName;
-  //   queryParams.startAt = true;
-  // }
-  const response = await axios.get(`/file-service/list`);
+export const getFilesListAPI = async ({
+  queryKey,
+}: QueryFunctionContext<[string, {path: string}]>) => {
+  const [_key, { path }] = queryKey;
+  const response = await axios.get(`/file-service/list`, {
+    params: {
+      path,
+    },
+  });
+  // const response = await axios.get(`/file-service/list`);
   return response.data;
 };
 
