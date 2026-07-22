@@ -346,8 +346,8 @@ class StorageService {
     return { archive };
   };
 
-  getThumbnail = async (user: UserInterface, id: string, res: Response) => {
-    await getThumbnailData(res, id, user);
+  getThumbnail = async (id: string, res: Response) => {
+    await getThumbnailData(res, id);
   };
 
   getFullThumbnail = async (

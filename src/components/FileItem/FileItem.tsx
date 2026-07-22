@@ -36,7 +36,7 @@ const FileItem: React.FC<FileItemProps> = memo((props) => {
   );
   const listView = useAppSelector((state) => state.general.listView);
   const thumbnailURL = `${getBackendURL()}/file-service/thumbnail/${
-    file.metadata.thumbnailID
+    file._id
   }`;
   // const hasThumbnail = file.metadata.hasThumbnail;
   const [thumbnailLoaded, setThumbnailLoaded] = useState(false);

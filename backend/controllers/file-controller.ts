@@ -42,14 +42,10 @@ class FileController {
     res: Response,
     next: NextFunction
   ) => {
-    if (!req.user) {
-      return;
-    }
     try {
-      const user = req.user;
       const id = req.params.id;
 
-      await this.chunkService.getThumbnail(user, id, res);
+      await this.chunkService.getThumbnail(id, res);
     } catch (e: unknown) {
       next(e);
     }

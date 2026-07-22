@@ -43,7 +43,7 @@ const AppRouter = () => {
           element={<DownloadPage />}
         />
         <Route
-          path="/folder/:id"
+          path="/folder/*"
           element={
             <PrivateRoute>
               <Homepage />

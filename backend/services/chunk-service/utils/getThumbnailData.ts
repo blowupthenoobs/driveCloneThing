@@ -11,70 +11,33 @@ import ForbiddenError from "../../../utils/ForbiddenError";
 import NotFoundError from "../../../utils/NotFoundError";
 import imageChecker from "../../../utils/imageChecker";
 import videoChecker from "../../../utils/videoChecker";
+import path from "path";
+import { getFSStoragePath } from "../../../utils/getFSStoragePath";
 
 const thumbnailDB = new ThumbnailDB();
 
 const processData = (
   res: Response,
   id: string, //find a way to get this to just be the path string
-  user: UserInterface
 ) => {
   const emitter = new EventEmitter();
 
   (async () => {
     try {
-      if (!user?._id) {
-        throw new ForbiddenError("Invalid user");
-      }
-
-      /* -------------------------------------------------
-       * Legacy thumbnail lookup
-       * ------------------------------------------------- */
-      const thumb = await thumbnailDB.getThumbnailInfo(
-        user._id.toString(),
-        id
-      );
-
-      if (thumb?.path && fs.existsSync(thumb.path)) {
-        const rs = fs.createReadStream(thumb.path);
-        rs.on("error", e => emitter.emit("error", e));
-        rs.pipe(res).on("finish", () => emitter.emit("finish"));
-        return;
-      }
-
-      /* -------------------------------------------------
-       * Resolve FILE
-       * ------------------------------------------------- */
-      let file = await File.findOne({
-        _id: id,
-        "metadata.owner": user._id.toString(),
-      });
-
-      // If ID is actually a thumbnailID, resolve file via metadata
-      if (!file) {
-        file = await File.findOne({
-          "metadata.thumbnailID": id,
-          "metadata.owner": user._id.toString(),
-        });
-      }
-
-      if (!file) {
-        throw new NotFoundError("File not found");
-      }
-
-      const filePath = file.metadata.filePath;
-
-      if (!filePath || !fs.existsSync(filePath)) {
+      const baseDirectory = getFSStoragePath();
+      const filePath = path.join(baseDirectory, id);
+      
+      if (!fs.existsSync(filePath)) {
         throw new NotFoundError("File missing on disk");
       }
 
       /* -------------------------------------------------
        * Image → stream original file
        * ------------------------------------------------- */
-      if (imageChecker(file.filename)) {
+      if (imageChecker(filePath)) {
         res.setHeader("Content-Type", "image/jpeg");
 
-        const rs = fs.createReadStream(filePath);
+        const rs = fs.createReadStream(id);
         rs.on("error", e => emitter.emit("error", e));
         rs.pipe(res).on("finish", () => emitter.emit("finish"));
         return;
@@ -83,7 +46,7 @@ const processData = (
       /* -------------------------------------------------
        * Video extract single frame
        * ------------------------------------------------- */
-      if (videoChecker(file.filename)) {
+      if (videoChecker(filePath)) {
         res.setHeader("Content-Type", "image/jpeg");
 
         ffmpeg(filePath)
@@ -112,11 +75,10 @@ const processData = (
 
 const getThumbnailData = (
   res: Response,
-  id: string,
-  user: UserInterface
+  id: string
 ) =>
   new Promise((resolve, reject) => {
-    const e = processData(res, id, user);
+    const e = processData(res, id);
     e.on("finish", resolve);
     e.on("error", reject);
   });
