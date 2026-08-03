@@ -44,6 +44,8 @@ class FileController {
   ) => {
     try {
       const id = req.params.id;
+      console.log("has this function ever been called?");
+      console.log(id);
 
       await this.chunkService.getThumbnail(id, res);
     } catch (e: unknown) {

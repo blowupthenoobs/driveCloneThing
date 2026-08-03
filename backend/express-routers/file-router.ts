@@ -34,14 +34,11 @@ const router = Router();
 
 router.get(
   "/file-service/thumbnail/:id",
-  authFullUser,
-  getThumbnailValidationRules,
   fileController.getThumbnail
 );
 
 router.get(
   "/file-service/full-thumbnail/:id",
-  authFullUser,
   getThumbnailValidationRules,
   fileController.getFullThumbnail
 );

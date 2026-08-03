@@ -3,18 +3,11 @@ import { Response } from "express";
 import fs from "fs";
 import ffmpeg from "fluent-ffmpeg";
 
-import { UserInterface } from "../../../models/user-model";
-import File from "../../../models/file-model";
-import ThumbnailDB from "../../../db/mongoDB/thumbnailDB";
-
-import ForbiddenError from "../../../utils/ForbiddenError";
 import NotFoundError from "../../../utils/NotFoundError";
 import imageChecker from "../../../utils/imageChecker";
 import videoChecker from "../../../utils/videoChecker";
 import path from "path";
 import { getFSStoragePath } from "../../../utils/getFSStoragePath";
-
-const thumbnailDB = new ThumbnailDB();
 
 const processData = (
   res: Response,
@@ -28,6 +21,7 @@ const processData = (
       const filePath = path.join(baseDirectory, id);
       
       if (!fs.existsSync(filePath)) {
+        console.log("file is not being found rn")
         throw new NotFoundError("File missing on disk");
       }
 
@@ -36,9 +30,10 @@ const processData = (
        * ------------------------------------------------- */
       if (imageChecker(filePath)) {
         res.setHeader("Content-Type", "image/jpeg");
-
         const rs = fs.createReadStream(id);
-        rs.on("error", e => emitter.emit("error", e));
+        rs.on("error", e => emitter.emit("uploading thumbnail file had error", e));
+        console.log("checked to be an image")
+        console.log(filePath)
         rs.pipe(res).on("finish", () => emitter.emit("finish"));
         return;
       }
