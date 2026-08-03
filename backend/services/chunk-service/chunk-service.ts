@@ -167,7 +167,7 @@ class StorageService {
   };
 
   downloadFile = async (user: UserInterface, fileID: string, res: Response) => {
-    await getFileData(res, fileID, user);
+    await getFileData(res, fileID);
   };
 
   downloadZip = async (
@@ -351,27 +351,25 @@ class StorageService {
   };
 
   getFullThumbnail = async (
-    user: UserInterface,
     fileID: string,
     res: Response
   ) => {
-    await getFileData(res, fileID, user);
+    await getFileData(res, fileID);
   };
 
   streamVideo = async (
-    user: UserInterface,
     fileID: string,
     headers: any,
     res: Response
   ) => {
-    const userID = user._id;
-    const currentFile = await fileDB.getFileInfo(fileID, userID.toString());
+    // const userID = user._id;
+    // const currentFile = await fileDB.getFileInfo(fileID);
 
     if (!currentFile) throw new NotFoundError("Video File Not Found");
 
-    const password = user.getEncryptionKey();
+    // const password = user.getEncryptionKey();
 
-    if (!password) throw new ForbiddenError("Invalid Encryption Key");
+    // if (!password) throw new ForbiddenError("Invalid Encryption Key");
 
     const fileSize = currentFile.metadata.size;
 
@@ -418,7 +416,7 @@ class StorageService {
 
     res.writeHead(206, head);
 
-    await getFileData(res, fileID, user, currentIV, {
+    await getFileData(res, fileID, currentIV, {
       start: start,
       end,
       chunksize,

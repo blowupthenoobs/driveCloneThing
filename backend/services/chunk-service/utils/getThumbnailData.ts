@@ -30,7 +30,7 @@ const processData = (
        * ------------------------------------------------- */
       if (imageChecker(filePath)) {
         res.setHeader("Content-Type", "image/jpeg");
-        const rs = fs.createReadStream(id);
+        const rs = fs.createReadStream(filePath);
         rs.on("error", e => emitter.emit("uploading thumbnail file had error", e));
         console.log("checked to be an image")
         console.log(filePath)

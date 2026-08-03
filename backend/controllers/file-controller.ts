@@ -44,7 +44,7 @@ class FileController {
   ) => {
     try {
       const id = req.params.id;
-      console.log("has this function ever been called?");
+      // console.log("has this function ever been called?");
       console.log(id);
 
       await this.chunkService.getThumbnail(id, res);
@@ -58,14 +58,13 @@ class FileController {
     res: Response,
     next: NextFunction
   ) => {
-    if (!req.user) {
-      return;
-    }
+    // if (!req.user) {
+    //   return;
+    // }
     try {
-      const user = req.user;
       const fileID = req.params.id;
 
-      await this.chunkService.getFullThumbnail(user, fileID, res);
+      await this.chunkService.getFullThumbnail(fileID, res);
     } catch (e: unknown) {
       next(e);
     }

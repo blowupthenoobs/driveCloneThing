@@ -26,18 +26,17 @@ const activeStreams = new Map<
 
 const getFileAndRemoveActiveStream = async (
   fileID: string,
-  userID: string,
   isVideoStream: boolean
 ) => {
   const cachedFileData = activeStreams.get(fileID);
   if (!cachedFileData || !isVideoStream) {
-    const file = await fileDB.getFileInfo(fileID, userID);
-    if (!file) {
-      throw new NotFoundError("File not found");
-    }
-    if (file.metadata.owner !== userID) {
-      throw new NotAuthorizedError("Not owner of file");
-    }
+    // const file = await fileDB.getFileInfo(fileID);
+    // if (!file) {
+    //   throw new NotFoundError("File not found");
+    // }
+    // if (file.metadata.owner !== userID) {
+    //   throw new NotAuthorizedError("Not owner of file");
+    // }
     return file;
   } else {
     const { file, readStream, decipherStream } = cachedFileData;
@@ -57,7 +56,6 @@ const getFileAndRemoveActiveStream = async (
 const proccessData = (
   res: Response,
   fileID: string,
-  user: UserInterface,
   rangeIV?: Buffer,
   range?: {
     start: number;
@@ -74,7 +72,6 @@ const proccessData = (
     try {
       const currentFile = await getFileAndRemoveActiveStream(
         fileID,
-        user._id.toString(),
         !!range
       );
 
@@ -143,7 +140,6 @@ const proccessData = (
 const getFileData = (
   res: Response,
   fileID: string,
-  user: UserInterface,
   rangeIV?: Buffer,
   range?: {
     start: number;
@@ -155,7 +151,7 @@ const getFileData = (
   }
 ) => {
   return new Promise((resolve, reject) => {
-    const eventEmitter = proccessData(res, fileID, user, rangeIV, range);
+    const eventEmitter = proccessData(res, fileID, rangeIV, range);
     eventEmitter.on("finish", (data) => {
       resolve(data);
     });
