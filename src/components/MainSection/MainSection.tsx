@@ -10,6 +10,8 @@ import FileInfoPopup from "../FileInfoPopup/FileInfoPopup";
 import SharePopup from "../SharePopup/SharePopup";
 import MoverPopup from "../MoverPopup/MoverPopup";
 
+import mediaChecker from "../..//utils/mediaChecker";
+
 const MainSection = memo(() => {
   const popupModalItem = useAppSelector(
     (state) => state.selected.popupModal.file
@@ -22,8 +24,7 @@ const MainSection = memo(() => {
   );
   const scrollDivRef = useRef<HTMLDivElement>(null);
 
-  const isMediaSelected =
-    popupModalItem?.metadata.isVideo || popupModalItem?.metadata.hasThumbnail;
+  const isMediaSelected = mediaChecker(popupModalItem?.filename);
   const isFileInfoSelected = !isMediaSelected && popupModalItem;
 
   const { isMedia } = useUtils();

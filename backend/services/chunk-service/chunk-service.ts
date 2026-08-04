@@ -362,23 +362,24 @@ class StorageService {
     headers: any,
     res: Response
   ) => {
-    // const userID = user._id;
-    // const currentFile = await fileDB.getFileInfo(fileID);
+    const baseFilePath = getFSStoragePath();
+    const filePath = path.join(baseFilePath, fileID);
 
-    if (!currentFile) throw new NotFoundError("Video File Not Found");
+    let stats;
 
-    // const password = user.getEncryptionKey();
+    try{
+      stats = await fs.stat(filePath);
+    } catch {
+      throw new NotFoundError("Video File Not Found");
+    }
 
-    // if (!password) throw new ForbiddenError("Invalid Encryption Key");
-
-    const fileSize = currentFile.metadata.size;
-
+    const fileSize = stats.size;
     const range = headers.range;
+
     const parts = range.replace(/bytes=/, "").split("-");
     const start = parseInt(parts[0], 10);
     const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
     const chunksize = end - start + 1;
-    const IV = currentFile.metadata.IV;
 
     const head = {
       "Content-Range": "bytes " + start + "-" + end + "/" + fileSize,
@@ -387,42 +388,15 @@ class StorageService {
       "Content-Type": "video/mp4",
     };
 
-    let fixedStart = 0;
-    let fixedEnd = fixEndChunkLength(end) - 1;
-
-    if (start === 0 && end === 1) {
-      fixedStart = 0;
-      fixedEnd = 15;
-    } else {
-      fixedStart = start % 16 === 0 ? start : fixStartChunkLength(start);
-    }
-
-    if (+start === 0) {
-      fixedStart = 0;
-    }
-
-    let currentIV = IV;
-
-    if (fixedStart !== 0 && start !== 0) {
-      const readStreamParams = createGenericParams({
-        filePath: currentFile.metadata.filePath,
-        Key: currentFile.metadata.s3ID,
-      });
-      currentIV = (await storageActions.getPrevIV(
-        readStreamParams,
-        fixedStart - 16
-      )) as Buffer;
-    }
-
     res.writeHead(206, head);
 
-    await getFileData(res, fileID, currentIV, {
+    await getFileData(res, fileID, undefined, {
       start: start,
       end,
-      chunksize,
-      fixedStart,
-      fixedEnd,
-      skip: start - fixedStart,
+      chunksize: chunksize,
+      fixedStart: start,
+      fixedEnd: end,
+      skip: 0,
     });
   };
 

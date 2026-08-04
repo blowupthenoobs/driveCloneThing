@@ -39,7 +39,6 @@ router.get(
 
 router.get(
   "/file-service/full-thumbnail/:id",
-  getThumbnailValidationRules,
   fileController.getFullThumbnail
 );
 

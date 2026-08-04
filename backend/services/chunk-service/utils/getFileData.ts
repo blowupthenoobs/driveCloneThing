@@ -6,14 +6,14 @@ import NotFoundError from "../../../utils/NotFoundError";
 import crypto from "crypto";
 import { createGenericParams } from "./storageHelper";
 import { getStorageActions } from "../actions/helper-actions";
-import FileDB from "../../../db/mongoDB/fileDB";
+// import FileDB from "../../../db/mongoDB/fileDB";
 import { FileInterface } from "../../../models/file-model";
 import NotAuthorizedError from "../../../utils/NotAuthorizedError";
 import sanitizeFilename from "../../../utils/sanitizeFilename";
 
-const fileDB = new FileDB();
-
-const storageActions = getStorageActions();
+import fs from "fs";
+import path from "path";
+import { getFSStoragePath } from "../../../utils/getFSStoragePath";
 
 const activeStreams = new Map<
   string,
@@ -56,7 +56,6 @@ const getFileAndRemoveActiveStream = async (
 const proccessData = (
   res: Response,
   fileID: string,
-  rangeIV?: Buffer,
   range?: {
     start: number;
     end: number;
@@ -70,63 +69,91 @@ const proccessData = (
 
   const processFile = async () => {
     try {
-      const currentFile = await getFileAndRemoveActiveStream(
-        fileID,
-        !!range
-      );
+      // const currentFile = await getFileAndRemoveActiveStream(
+      //   fileID,
+      //   !!range
+      // );
 
-      if (!currentFile) throw new NotFoundError("Download File Not Found");
+      // if (!currentFile) throw new NotFoundError("Download File Not Found");
 
-      const readStreamParams = createGenericParams({
-        filePath: currentFile.metadata.filePath,
-        Key: currentFile.metadata.s3ID,
-      });
+      // const readStreamParams = createGenericParams({
+      //   filePath: currentFile.metadata.filePath,
+      //   Key: currentFile.metadata.s3ID,
+      // });
 
-      let readStream: NodeJS.ReadableStream;
+      // let readStream: NodeJS.ReadableStream;
 
-      if (range) {
-        readStream = storageActions.createReadStreamWithRange(
-          readStreamParams,
-          range.fixedStart,
-          range.fixedEnd
-        );
-      } else {
-        readStream = storageActions.createReadStream(readStreamParams);
-      }
+      // if (range) {
+      //   readStream = storageActions.createReadStreamWithRange(
+      //     readStreamParams,
+      //     range.fixedStart,
+      //     range.fixedEnd
+      //   );
+      // } else {
+      //   readStream = storageActions.createReadStream(readStreamParams);
+      // }
 
-      readStream.on("error", (e: Error) => {
-        eventEmitter.emit("error", e);
-      });
+      // readStream.on("error", (e: Error) => {
+      //   eventEmitter.emit("error", e);
+      // });
 
-      if (!!range) {
-        activeStreams.set(fileID, {
-          readStream,
-          file: currentFile
-        } as any);
-      }
+      // if (!!range) {
+      //   activeStreams.set(fileID, {
+      //     readStream,
+      //     file: currentFile
+      //   } as any);
+      // }
 
-      res.on("error", (e: Error) => {
-        eventEmitter.emit("error", e);
-      });
+      // res.on("error", (e: Error) => {
+      //   eventEmitter.emit("error", e);
+      // });
 
-      if (!range) {
-        const sanatizedFilename = sanitizeFilename(currentFile.filename);
-        const encodedFilename = encodeURIComponent(sanatizedFilename);
-        res.set("Content-Type", "binary/octet-stream");
-        res.set(
+      // if (!range) {
+      //   const sanatizedFilename = sanitizeFilename(currentFile.filename);
+      //   const encodedFilename = encodeURIComponent(sanatizedFilename);
+      //   res.set("Content-Type", "binary/octet-stream");
+      //   res.set(
+      //     "Content-Disposition",
+      //     `attachment; filename="${sanatizedFilename}"; filename*=UTF-8''${encodedFilename}`
+      //   );
+      //   res.set("Content-Length", currentFile.metadata.size.toString());
+
+      //   (readStream as NodeJS.ReadableStream)
+      //     .pipe(res)
+      //     .on("finish", ()=> eventEmitter.emit("finish"));
+      // } else {
+      //   (readStream as NodeJS.ReadableStream)
+      //     .pipe(res)
+      //     .on("finish", ()=> eventEmitter.emit("finish"));
+      // } 
+
+      const baseFilePath = getFSStoragePath();
+      const filePath = path.join(baseFilePath, fileID);
+
+      if(!fs.existsSync(filePath))
+        throw new NotFoundError("File not found");
+
+      const stats = await fs.promises.stat(filePath);
+
+      const sanitized = sanitizeFilename(path.basename(filePath));
+      const encodedFileName = encodeURIComponent(sanitized);
+
+      if(!range) {
+        res.setHeader("Content-Type", "application/octet-stream");
+        res.setHeader(
           "Content-Disposition",
-          `attachment; filename="${sanatizedFilename}"; filename*=UTF-8''${encodedFilename}`
-        );
-        res.set("Content-Length", currentFile.metadata.size.toString());
+          `attachment; filename="${sanitized}"; filename*=UTF-8''${encodedFileName}`
+        )
+        res.setHeader("Content-Length", stats.size.toString());
 
-        (readStream as NodeJS.ReadableStream)
-          .pipe(res)
-          .on("finish", ()=> eventEmitter.emit("finish"));
-      } else {
-        (readStream as NodeJS.ReadableStream)
-          .pipe(res)
-          .on("finish", ()=> eventEmitter.emit("finish"));
-      } 
+        fs.createReadStream(filePath).on("error", e => emitter.emit("error", e)).pipe(res).on("finish", () => emitter.emit("finish"))
+        return;
+      }
+
+      fs.createReadStream(filePath, {
+        start: range.start,
+        end: range.end,
+      }).on("error", e => emitter.emit("error", e)).pipe(res).on("finish");
   } catch (e) {
     eventEmitter.emit("error", e);
   };
