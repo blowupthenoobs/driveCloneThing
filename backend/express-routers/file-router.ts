@@ -80,8 +80,6 @@ router.get(
 
 router.get(
   "/file-service/stream-video/:id",
-  authStreamVideo,
-  streamVideoValidationRules,
   fileController.streamVideo
 );
 

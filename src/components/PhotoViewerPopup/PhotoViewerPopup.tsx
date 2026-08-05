@@ -21,6 +21,8 @@ import { toast } from "react-toastify";
 import getBackendURL from "../../utils/getBackendURL";
 import classNames from "classnames";
 
+import videoChecker from "../../utils/videoChecker";
+
 interface PhotoViewerPopupProps {
   file: FileInterface;
 }
@@ -58,6 +60,7 @@ const PhotoViewerPopup: React.FC<PhotoViewerPopupProps> = memo((props) => {
   const imageColor = getFileColor(file.filename);
 
   const getVideo = useCallback(async () => {
+    console.log("attempting to get video");
     try {
       setIsVideoLoading(true);
       setVideo("");
@@ -262,14 +265,14 @@ const PhotoViewerPopup: React.FC<PhotoViewerPopupProps> = memo((props) => {
   };
 
   useEffect(() => {
-    if (file.metadata.isVideo) {
+    if (videoChecker(file._id)) {
       getVideo();
     }
 
     return () => {
       cleanUpVideo();
     };
-  }, [file.metadata.isVideo, getVideo, cleanUpVideo]);
+  }, [file._id, getVideo, cleanUpVideo]);
 
   useEffect(() => {
     const handleBack = () => {

@@ -344,16 +344,16 @@ class FileController {
     res: Response,
     next: NextFunction
   ) => {
-    if (!req.user) {
-      return;
-    }
+    // if (!req.user) {
+    //   return;
+    // }
 
     try {
-      const user = req.user;
       const fileID = req.params.id;
       const headers = req.headers;
+      console.log("calling video stream");
 
-      await this.chunkService.streamVideo(user, fileID, headers, res);
+      await this.chunkService.streamVideo(fileID, headers, res);
     } catch (e: unknown) {
       next(e);
     }

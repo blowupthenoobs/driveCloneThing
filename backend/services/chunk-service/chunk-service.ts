@@ -35,6 +35,10 @@ const userDB = new UserDB();
 
 const storageActions = getStorageActions();
 
+import fs from "fs";
+import { getFSStoragePath } from "../../utils/getFSStoragePath";
+import path from "path";
+
 class StorageService {
   constructor() {}
 
@@ -364,6 +368,8 @@ class StorageService {
   ) => {
     const baseFilePath = getFSStoragePath();
     const filePath = path.join(baseFilePath, fileID);
+    console.log("is this video being played");
+    console.log(filePath);
 
     let stats;
 
