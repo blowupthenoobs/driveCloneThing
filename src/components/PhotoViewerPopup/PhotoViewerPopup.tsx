@@ -21,6 +21,7 @@ import { toast } from "react-toastify";
 import getBackendURL from "../../utils/getBackendURL";
 import classNames from "classnames";
 
+import mediaChecker from "../../utils/mediaChecker";
 import videoChecker from "../../utils/videoChecker";
 
 interface PhotoViewerPopupProps {
@@ -32,14 +33,13 @@ const PhotoViewerPopup: React.FC<PhotoViewerPopupProps> = memo((props) => {
   const [video, setVideo] = useState("");
   const [isVideoLoading, setIsVideoLoading] = useState(false);
   const [isThumbnailLoading, setIsThumbnailLoading] = useState(
-    file.metadata.hasThumbnail && !file.metadata.isVideo
+    mediaChecker(file._id) && !videoChecker(file._id)
   );
   const [thumbnailError, setThumbnailError] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const type = useAppSelector((state) => state.selected.popupModal.type)!;
-  const thumbnailURL = `${getBackendURL()}/file-service/full-thumbnail/${
-    file._id
-  }`;
+  const thumbnailURL = `${getBackendURL()}/file-service/full-thumbnail/${file._id}`;
+  const videoURL = `${getBackendURL()}/file-service/stream-video/${file._id}`;
   const finalLastPageLoaded = useRef(false);
   const loadingNextPage = useRef(false);
   const { data: quickFiles } = useQuickFiles(false);
@@ -265,14 +265,14 @@ const PhotoViewerPopup: React.FC<PhotoViewerPopupProps> = memo((props) => {
   };
 
   useEffect(() => {
-    if (videoChecker(file._id)) {
+    if (file.metadata.isVideo) {
       getVideo();
     }
 
     return () => {
       cleanUpVideo();
     };
-  }, [file._id, getVideo, cleanUpVideo]);
+  }, [file.metadata.isVideo, getVideo, cleanUpVideo]);
 
   useEffect(() => {
     const handleBack = () => {
@@ -347,7 +347,7 @@ const PhotoViewerPopup: React.FC<PhotoViewerPopupProps> = memo((props) => {
       />
       <div className="max-w-[95vw] sm:max-w-[80vw] max-h-[70vh] sm:max-h-[80vh] flex justify-center items-center ">
         {isThumbnailLoading && !thumbnailError && <Spinner />}
-        {!file.metadata.isVideo && (
+        {!videoChecker(file._id) && (
           <img
             src={thumbnailURL}
             className={classNames(
