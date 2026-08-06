@@ -21,7 +21,6 @@ import { toast } from "react-toastify";
 import getBackendURL from "../../utils/getBackendURL";
 import classNames from "classnames";
 
-import mediaChecker from "../../utils/mediaChecker";
 import videoChecker from "../../utils/videoChecker";
 
 interface PhotoViewerPopupProps {
@@ -33,7 +32,7 @@ const PhotoViewerPopup: React.FC<PhotoViewerPopupProps> = memo((props) => {
   const [video, setVideo] = useState("");
   const [isVideoLoading, setIsVideoLoading] = useState(false);
   const [isThumbnailLoading, setIsThumbnailLoading] = useState(
-    mediaChecker(file._id) && !videoChecker(file._id)
+    file.metadata.hasThumbnail && !file.metadata.isVideo
   );
   const [thumbnailError, setThumbnailError] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -347,7 +346,7 @@ const PhotoViewerPopup: React.FC<PhotoViewerPopupProps> = memo((props) => {
       />
       <div className="max-w-[95vw] sm:max-w-[80vw] max-h-[70vh] sm:max-h-[80vh] flex justify-center items-center ">
         {isThumbnailLoading && !thumbnailError && <Spinner />}
-        {!videoChecker(file._id) && (
+        {!file.metadata.isVideo && (
           <img
             src={thumbnailURL}
             className={classNames(
