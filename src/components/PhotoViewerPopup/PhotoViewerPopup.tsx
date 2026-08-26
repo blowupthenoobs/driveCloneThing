@@ -282,6 +282,7 @@ const PhotoViewerPopup: React.FC<PhotoViewerPopupProps> = memo((props) => {
     return () => {
       window.removeEventListener("popstate", handleBack);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
