@@ -351,7 +351,7 @@ class FileController {
     try {
       const fileID = req.params.id;
       const headers = req.headers;
-      console.log("calling video stream");
+      console.log("the ID is: " + fileID);
 
       await this.chunkService.streamVideo(fileID, headers, res);
     } catch (e: unknown) {

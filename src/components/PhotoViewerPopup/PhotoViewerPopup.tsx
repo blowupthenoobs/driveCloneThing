@@ -29,8 +29,6 @@ interface PhotoViewerPopupProps {
 
 const PhotoViewerPopup: React.FC<PhotoViewerPopupProps> = memo((props) => {
   const { file } = props;
-  const [video, setVideo] = useState("");
-  const [isVideoLoading, setIsVideoLoading] = useState(false);
   const [isThumbnailLoading, setIsThumbnailLoading] = useState(
     file.metadata.hasThumbnail && !file.metadata.isVideo
   );
@@ -58,32 +56,32 @@ const PhotoViewerPopup: React.FC<PhotoViewerPopupProps> = memo((props) => {
 
   const imageColor = getFileColor(file.filename);
 
-  const getVideo = useCallback(async () => {
-    console.log("attempting to get video");
-    try {
-      setIsVideoLoading(true);
-      setVideo("");
-      await getVideoTokenAPI();
-      const videoURL = `${getBackendURL()}/file-service/stream-video/${
-        file._id
-      }`;
-      setVideo(videoURL);
-      setIsVideoLoading(false);
-    } catch (e) {
-      console.log("Error getting video", e);
-      toast.error("Error getting video");
-    }
-  }, [file._id]);
+  // const getVideo = useCallback(async () => {
+  //   console.log("attempting to get video");
+  //   try {
+  //     setIsVideoLoading(true);
+  //     setVideo("");
+  //     await getVideoTokenAPI();
+  //     const videoURL = `${getBackendURL()}/file-service/stream-video/${
+  //       file._id
+  //     }`;
+  //     setVideo(videoURL);
+  //     setIsVideoLoading(false);
+  //   } catch (e) {
+  //     console.log("Error getting video", e);
+  //     toast.error("Error getting video");
+  //   }
+  // }, [file._id]);
 
-  const cleanUpVideo = useCallback(async () => {
-    if (!file.metadata.isVideo || !videoRef.current) return;
+  // const cleanUpVideo = useCallback(async () => {
+  //   if (!videoChecker(file.filename) || !videoRef.current) return;
 
-    deleteVideoTokenAPI();
+  //   // deleteVideoTokenAPI();
 
-    videoRef.current.pause();
-    videoRef.current.src = "";
-    setVideo("");
-  }, [file._id, deleteVideoTokenAPI]);
+  //   videoRef.current.pause();
+  //   videoRef.current.src = "";
+  //   setVideo("");
+  // }, [file.filename]);
 
   const findPrevFilesItem = (newFiles?: InfiniteData<FileInterface[]>) => {
     if (newFiles) {
@@ -264,16 +262,6 @@ const PhotoViewerPopup: React.FC<PhotoViewerPopupProps> = memo((props) => {
   };
 
   useEffect(() => {
-    if (file.metadata.isVideo) {
-      getVideo();
-    }
-
-    return () => {
-      cleanUpVideo();
-    };
-  }, [file.metadata.isVideo, getVideo, cleanUpVideo]);
-
-  useEffect(() => {
     const handleBack = () => {
       closePhotoViewer();
     };
@@ -347,7 +335,7 @@ const PhotoViewerPopup: React.FC<PhotoViewerPopupProps> = memo((props) => {
       />
       <div className="max-w-[95vw] sm:max-w-[80vw] max-h-[70vh] sm:max-h-[80vh] flex justify-center items-center ">
         {isThumbnailLoading && !thumbnailError && <Spinner />}
-        {!file.metadata.isVideo && (
+        {!videoChecker(file.filename) && (
           <img
             src={thumbnailURL}
             className={classNames(
@@ -365,9 +353,9 @@ const PhotoViewerPopup: React.FC<PhotoViewerPopupProps> = memo((props) => {
             <p className="text-center text-sm">Error loading image</p>
           </div>
         )}
-        {file.metadata.isVideo && !isVideoLoading && (
+        {videoChecker(file.filename) && (
           <video
-            src={video}
+            src={videoURL}
             ref={videoRef}
             className="max-w-full max-h-full object-contain"
             controls

@@ -374,13 +374,24 @@ class StorageService {
     let stats;
 
     try{
-      stats = await fs.stat(filePath);
+      stats = await fs.promises.stat(filePath);
     } catch {
       throw new NotFoundError("Video File Not Found");
     }
 
     const fileSize = stats.size;
     const range = headers.range;
+
+    if(!range) {
+      res.writeHead(200, {
+        "content-length": fileSize,
+        "Content-Type": "video/mp4",
+        "accept-ranges": "bytes"
+      });
+
+      fs.createReadStream(filePath).pipe(res);
+      return;
+    }
 
     const parts = range.replace(/bytes=/, "").split("-");
     const start = parseInt(parts[0], 10);
