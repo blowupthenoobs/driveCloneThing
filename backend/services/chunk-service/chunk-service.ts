@@ -361,6 +361,27 @@ class StorageService {
     await getFileData(res, fileID);
   };
 
+  getContentType = (fileName: string) => { //Might move this elsewhere later?
+    const ext = path.extname(fileName).toLowerCase();
+
+    switch(ext) {
+      case ".mp4":
+        return "video/mp4"
+      case ".mov":
+        return "video/quicktime"
+      case ".webm":
+        return "video/webm"
+      case ".ogv":
+        return "video/ogg"
+      case ".avi":
+        return "video/x-msvideo"
+      case ".mkv":
+        return "video/x-matroska"
+      default:
+        return "application/octet-stream"
+    }
+  }
+
   streamVideo = async (
     fileID: string,
     headers: any,
@@ -385,13 +406,29 @@ class StorageService {
     if(!range) {
       res.writeHead(200, {
         "content-length": fileSize,
-        "Content-Type": "video/mp4",
+        "Content-Type": this.getContentType(filePath),
         "accept-ranges": "bytes"
       });
 
-      fs.createReadStream(filePath).pipe(res);
+      console.log("sent headers");
+
+      const stream = fs.createReadStream(filePath).pipe(res);
+
+      stream.on("open", () => {
+        console.log("File stream opened")
+      })
+
+      stream.on("error", (e) => {
+        console.log("File stream error: ", e)
+      })
+
+      stream.on("end", () => {
+        console.log("File stream ended")
+      })
       return;
     }
+
+    console.log("attempting to use range");
 
     const parts = range.replace(/bytes=/, "").split("-");
     const start = parseInt(parts[0], 10);
@@ -402,19 +439,22 @@ class StorageService {
       "Content-Range": "bytes " + start + "-" + end + "/" + fileSize,
       "Accept-Ranges": "bytes",
       "Content-Length": chunksize,
-      "Content-Type": "video/mp4",
+      "Content-Type": this.getContentType(filePath),
     };
 
     res.writeHead(206, head);
 
-    await getFileData(res, fileID, undefined, {
-      start: start,
-      end,
-      chunksize: chunksize,
-      fixedStart: start,
-      fixedEnd: end,
-      skip: 0,
-    });
+    // await getFileData(res, fileID, undefined, {
+    //   start: start,
+    //   end,
+    //   chunksize: chunksize,
+    //   fixedStart: start,
+    //   fixedEnd: end,
+    //   skip: 0,
+    // });
+
+    const stream = fs.createReadStream(filePath, {start, end})
+    stream.pipe(res);
   };
 
   getPublicDownload = async (fileID: string, tempToken: any, res: Response) => {
