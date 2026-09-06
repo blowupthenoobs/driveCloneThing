@@ -412,19 +412,7 @@ class StorageService {
 
       console.log("sent headers");
 
-      const stream = fs.createReadStream(filePath).pipe(res);
-
-      stream.on("open", () => {
-        console.log("File stream opened")
-      })
-
-      stream.on("error", (e) => {
-        console.log("File stream error: ", e)
-      })
-
-      stream.on("end", () => {
-        console.log("File stream ended")
-      })
+      fs.createReadStream(filePath).pipe(res);
       return;
     }
 
