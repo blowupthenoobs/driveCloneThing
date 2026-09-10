@@ -43,7 +43,7 @@ class FileController {
     next: NextFunction
   ) => {
     try {
-      const id = req.params.id;
+      const id = req.params[0];
       // console.log("has this function ever been called?");
       console.log(id);
 
@@ -62,7 +62,7 @@ class FileController {
     //   return;
     // }
     try {
-      const fileID = req.params.id;
+      const fileID = req.params[0];
 
       await this.chunkService.getFullThumbnail(fileID, res);
     } catch (e: unknown) {
@@ -349,7 +349,7 @@ class FileController {
     // }
 
     try {
-      const fileID = req.params.id;
+      const fileID = req.params[0];
       const headers = req.headers;
       console.log("the ID is: " + fileID);
 

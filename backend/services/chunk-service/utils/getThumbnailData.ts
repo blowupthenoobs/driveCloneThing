@@ -19,6 +19,8 @@ const processData = (
     try {
       const baseDirectory = getFSStoragePath();
       const filePath = path.join(baseDirectory, id);
+
+      console.log("thumbnail id is: ", id);
       
       if (!fs.existsSync(filePath)) {
         console.log("file is not being found rn")

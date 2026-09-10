@@ -33,12 +33,12 @@ const router = Router();
 // GET
 
 router.get(
-  "/file-service/thumbnail/:id",
+  "/file-service/thumbnail/*",
   fileController.getThumbnail
 );
 
 router.get(
-  "/file-service/full-thumbnail/:id",
+  "/file-service/full-thumbnail/*",
   fileController.getFullThumbnail
 );
 
@@ -79,7 +79,7 @@ router.get(
 );
 
 router.get(
-  "/file-service/stream-video/:id",
+  "/file-service/stream-video/*",
   fileController.streamVideo
 );
 

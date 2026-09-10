@@ -410,13 +410,13 @@ class StorageService {
         "accept-ranges": "bytes"
       });
 
-      console.log("sent headers");
+      // console.log("sent headers");
 
       fs.createReadStream(filePath).pipe(res);
       return;
     }
 
-    console.log("attempting to use range");
+    // console.log("attempting to use range");
 
     const parts = range.replace(/bytes=/, "").split("-");
     const start = parseInt(parts[0], 10);

@@ -1,8 +1,6 @@
 import { QueryFunctionContext } from "react-query";
 import axios from "../axiosInterceptor";
-import { getUserToken } from "./userAPI";
 import getBackendURL from "../utils/getBackendURL";
-import { isPwa } from "../utils/PWAUtils";
 
 interface QueryKeyParams {
   parent: string;

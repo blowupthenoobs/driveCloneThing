@@ -146,14 +146,14 @@ const proccessData = (
         )
         res.setHeader("Content-Length", stats.size.toString());
 
-        fs.createReadStream(filePath).on("error", e => emitter.emit("error", e)).pipe(res).on("finish", () => emitter.emit("finish"))
+        fs.createReadStream(filePath).on("error", e => eventEmitter.emit("error", e)).pipe(res).on("finish", () => eventEmitter.emit("finish"))
         return;
       }
 
       fs.createReadStream(filePath, {
         start: range.start,
         end: range.end,
-      }).on("error", e => emitter.emit("error", e)).pipe(res).on("finish");
+      }).on("error", e => eventEmitter.emit("error", e)).pipe(res).on("finish", () => eventEmitter.emit("finish"));
   } catch (e) {
     eventEmitter.emit("error", e);
   };
@@ -178,7 +178,7 @@ const getFileData = (
   }
 ) => {
   return new Promise((resolve, reject) => {
-    const eventEmitter = proccessData(res, fileID, rangeIV, range);
+    const eventEmitter = proccessData(res, fileID, range);
     eventEmitter.on("finish", (data) => {
       resolve(data);
     });
