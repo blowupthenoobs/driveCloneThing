@@ -77,10 +77,10 @@ const ParentBar = memo(() => {
           {!isTrash ? "Home" : "Trash"}
         </a>
 
-        {nestedFolders.map((segment) => {
+        {nestedFolders.map((segment, index) => {
           let currentBuiltPath = "/folder";
           
-          for(let i = 0; i <= nestedFolders.indexOf(segment); i++)
+          for(let i = 1; i <= index; i++)
           {
             currentBuiltPath += "/" + nestedFolders[i];
           }
