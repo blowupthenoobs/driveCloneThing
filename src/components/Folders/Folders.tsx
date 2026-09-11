@@ -6,6 +6,7 @@ import { useUtils } from "../../hooks/utils";
 import { useAppDispatch, useAppSelector } from "../../hooks/store";
 import { setSortBy } from "../../reducers/filter";
 import ParentBar from "../ParentBar/ParentBar";
+// import { useLocation } from "react-router-dom";
 
 const Folders = memo(
   ({ scrollDivRef }: { scrollDivRef: React.RefObject<HTMLDivElement> }) => {
@@ -13,6 +14,10 @@ const Folders = memo(
     const { isTrash, isSearch, isHome } = useUtils();
     const sortBy = useAppSelector((state) => state.filter.sortBy);
     const dispatch = useAppDispatch();
+
+    // const location = useLocation();
+    // const isHome = location.pathname == "/home";
+
 
     const switchOrderSortBy = () => {
       let newSortBy = "";

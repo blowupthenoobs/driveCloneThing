@@ -5,6 +5,7 @@ export const useUtils = () => {
   const location = useLocation();
 
   const isHome = location.pathname === "/home";
+  const isFolder = location.pathname.substring(0, 7) === "/folder"
 
   const isTrash =
     location.pathname === "/trash" ||
@@ -21,7 +22,7 @@ export const useUtils = () => {
 
   const isSearch = location.pathname.includes("/search/");
 
-  return { isHome, isTrash, isMedia, isSettings, isHomeFolder, isSearch };
+  return { isHome, isTrash, isMedia, isSettings, isHomeFolder, isSearch, isFolder };
 };
 
 export const useClickOutOfBounds = (

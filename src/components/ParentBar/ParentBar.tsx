@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useUtils } from "../../hooks/utils";
 import { useFolder } from "../../hooks/folders";
 import SpacerIcon from "../../icons/SpacerIcon";
@@ -8,9 +8,13 @@ import { useContextMenu } from "../../hooks/contextMenu";
 import ContextMenu from "../ContextMenu/ContextMenu";
 
 const ParentBar = memo(() => {
-  const { data: folder } = useFolder(false);
+  // const { data: folder } = useFolder(false);
+  const location = useLocation();
+  const folderPath = location.pathname.substring(7);
+  const nestedFolders = folderPath.split("/");
+  const folder = folderPath.slice(folderPath.lastIndexOf("/"));
   const navigate = useNavigate();
-  const { isHome, isTrash } = useUtils();
+  const { isHome, isTrash, isFolder } = useUtils();
   const {
     onContextMenu,
     closeContextMenu,
@@ -21,7 +25,7 @@ const ParentBar = memo(() => {
     ...contextMenuState
   } = useContextMenu();
 
-  if (isHome || !folder) {
+  if (isHome || !isFolder) {
     return <div></div>;
   }
 
@@ -33,15 +37,16 @@ const ParentBar = memo(() => {
     }
   };
 
-  const goToFolder = () => {
-    navigate(`/folder/${folder?._id}`);
+  const goToFolder = (path: string) => {
+    navigate(path);
   };
 
   const goBackAFolder = () => {
-    if (folder?.parent === "/") {
+    if (folderPath.lastIndexOf("/") === 0) {
       navigate("/home");
     } else {
-      navigate(`/folder/${folder.parent}`);
+      // console.log(folderPath.lastIndexOf("/"))
+      navigate(`${location.pathname.substring(0, location.pathname.lastIndexOf("/"))}`);
     }
   };
 
@@ -54,7 +59,6 @@ const ParentBar = memo(() => {
             parentBarMode={true}
             contextSelected={contextMenuState}
             closeContext={closeContextMenu}
-            folder={folder}
           />
         </div>
       )}
@@ -72,7 +76,29 @@ const ParentBar = memo(() => {
         >
           {!isTrash ? "Home" : "Trash"}
         </a>
-        <SpacerIcon className="text-black mx-2 w-2.5 h-2.5" />
+
+        {nestedFolders.map((segment) => {
+          let currentBuiltPath = "/folder";
+          
+          for(let i = 0; i <= nestedFolders.indexOf(segment); i++)
+          {
+            currentBuiltPath += "/" + nestedFolders[i];
+          }
+
+          if(segment !== folder.substring(1))
+          return (
+              <div className="flex items-center">
+                <a
+                  className="text-[#637381] text-md leading-[21px] font-medium m-0 no-underline animate cursor-pointer rounded-md p-1 hover:bg-grey-hover"
+                  onClick={() => goToFolder(currentBuiltPath)}
+                >
+                  {segment}
+                </a>
+                <SpacerIcon className="text-black mx-2 w-2.5 h-2.5" />
+              </div>
+            )
+        })};
+
         <p
           onClick={onContextMenu}
           className="text-primary text-md leading-[21px] font-medium m-0 whitespace-nowrap max-w-[170px] sm:max-w-[300px] overflow-hidden text-ellipsis cursor-pointer rounded-md p-1 hover:bg-grey-hover "
@@ -81,7 +107,7 @@ const ParentBar = memo(() => {
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
         >
-          {folder.name}
+          {folder.substring(1)}
         </p>
       </div>
     </div>
