@@ -75,15 +75,15 @@ class FileController {
     res: Response,
     next: NextFunction
   ) => {
-    if (!req.user) {
-      return;
-    }
+    // if (!req.user) {
+    //   return;
+    // }
 
     try {
-      const user = req.user;
+      // const user = req.user;
       const busboy = req.busboy;
 
-      const file = await this.chunkService.uploadFile(user, busboy, req);
+      const file = await this.chunkService.uploadFile(busboy, req);
 
       res.send(file);
     } catch (e: unknown) {
@@ -510,15 +510,15 @@ class FileController {
   };
 
   trashFile = async (req: RequestType, res: Response, next: NextFunction) => {
-    if (!req.user) {
-      return;
-    }
+    // if (!req.user) {
+    //   return;
+    // }
 
     try {
-      const userID = req.user._id;
+      // const userID = req.user._id;
       const fileID = req.body.id;
 
-      const trashedFile = await fileService.trashFile(userID, fileID);
+      const trashedFile = await fileService.trashFile(fileID);
 
       res.send(trashedFile.toObject());
     } catch (e) {

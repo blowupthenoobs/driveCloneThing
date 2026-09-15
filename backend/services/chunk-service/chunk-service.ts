@@ -42,28 +42,28 @@ import path from "path";
 class StorageService {
   constructor() {}
 
-  uploadFile = async (user: UserInterface, busboy: any, req: Request) => {
-    const { parent, file } = await uploadFileToStorage(busboy, user, req);
+  uploadFile = async (busboy: any, req: Request) => {
+    const { parent, file } = await uploadFileToStorage(busboy, req);
 
-    const parentList = [];
+    // const parentList = [];
 
-    if (parent !== "/") {
-      const parentFolder = await folderDB.getFolderInfo(
-        parent,
-        user._id.toString()
-      );
-      if (!parentFolder) throw new NotFoundError("Parent Folder Not Found");
-      parentList.push(...parentFolder.parentList, parentFolder._id);
-    } else {
-      parentList.push("/");
-    }
+    // if (parent !== "/") {
+    //   const parentFolder = await folderDB.getFolderInfo(
+    //     parent,
+    //     user._id.toString()
+    //   );
+    //   if (!parentFolder) throw new NotFoundError("Parent Folder Not Found");
+    //   parentList.push(...parentFolder.parentList, parentFolder._id);
+    // } else {
+    //   parentList.push("/");
+    // }
 
-    await fileDB.updateFileUploadedFile(
-      file._id!.toString(),
-      user._id.toString(),
-      parent,
-      parentList.toString()
-    );
+    // await fileDB.updateFileUploadedFile(
+    //   file._id!.toString(),
+    //   user._id.toString(),
+    //   parent,
+    //   parentList.toString()
+    // );
 
     return file;
   };

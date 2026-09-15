@@ -37,7 +37,6 @@ const saveToDisk = (
 };
 
 const handleUpload = async (
-  user: UserInterface,
   filename: string,
   fileStream: Stream,
   parent: string,
@@ -50,41 +49,40 @@ const handleUpload = async (
   const finalFileName = getUniqueFileName(storageDirectory, cleanName);
   const fullPath = storageDirectory + finalFileName;
 
-  const metadata: FileMetadateInterface = {
-    owner: user._id.toString(),
-    parent,
-    parentList: [parent].toString(),
-    hasThumbnail: false,      // ← keep false
-    thumbnailID: "",          // ← keep empty
-    isVideo: videoChecker(cleanName),
-    size,
-    filePath: fullPath,
-    processingFile: true,
-  };
+  // const metadata: FileMetadateInterface = {
+  //   owner: user._id.toString(),
+  //   parent,
+  //   parentList: [parent].toString(),
+  //   hasThumbnail: false,      // ← keep false
+  //   thumbnailID: "",          // ← keep empty
+  //   isVideo: videoChecker(cleanName),
+  //   size,
+  //   filePath: fullPath,
+  //   processingFile: true,
+  // };
 
   // Save file to disk
   await saveToDisk(fileStream, fullPath);
 
   // Update size after write
-  metadata.size = await getFileSize(fullPath);
+  const fileSize = await getFileSize(fullPath);
 
-  const fileDoc = new File({
-    filename: cleanName,
-    uploadDate: date.toISOString(),
-    length: metadata.size,
-    metadata,
-  });
+  // const fileDoc = new File({
+  //   filename: cleanName,
+  //   uploadDate: date.toISOString(),
+  //   length: fileSize,
+  // });
 
-  await fileDoc.save();
+  // await fileDoc.save();
 
   // 🚫 NO thumbnail creation here anymore
-  return fileDoc;
+  // return fileDoc;
+  return;
 };
 
 
 const processBusboy = (
   busboy: any,
-  user: UserInterface,
   req: RequestTypeFullUser
 ) => {
   const emitter = new EventEmitter();
@@ -102,7 +100,6 @@ const processBusboy = (
     async (_: string, file: Stream, data: { filename: string }) => {
       try {
         const fileDoc = await handleUpload(
-          user,
           data.filename,
           file,
           parent,
@@ -126,11 +123,10 @@ const processBusboy = (
 
 const uploadFileToStorage = (
   busboy: any,
-  user: UserInterface,
   req: RequestTypeFullUser
 ): Promise<FileInfo> => {
   return new Promise((resolve, reject) => {
-    const emitter = processBusboy(busboy, user, req);
+    const emitter = processBusboy(busboy, req);
 
     emitter.on("finish", resolve);
     emitter.on("error", reject);

@@ -141,7 +141,6 @@ router.patch(
 
 router.patch(
   "/file-service/trash",
-  auth,
   trashFileValidationRules,
   fileController.trashFile
 );
@@ -199,6 +198,6 @@ router.delete(
 
 // POST
 
-router.post("/file-service/upload", authFullUser, fileController.uploadFile);
+router.post("/file-service/upload", fileController.uploadFile);
 
 export default router;

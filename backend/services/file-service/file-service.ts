@@ -222,6 +222,7 @@ class MongoFileService {
   };
 
   trashFile = async (userID: string, fileID: string) => {
+    console.log("attempted to trash file with ID: ", fileID);
     const file = await fileDB.getFileInfo(fileID, userID);
 
     if (!file) throw new NotFoundError("Trash File Not Found Error");
