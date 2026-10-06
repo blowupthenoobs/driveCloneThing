@@ -9,6 +9,7 @@ import ChunkService from "../services/chunk-service/chunk-service";
 import streamToBuffer from "../utils/streamToBuffer";
 import NotAuthorizedError from "../utils/NotAuthorizedError";
 import { FileListQueryType } from "../types/file-types";
+import mediaChecker from "../utils/mediaChecker"
 import fs from "fs";
 
 const fileService = new FileService();
@@ -47,7 +48,8 @@ class FileController {
       // console.log("has this function ever been called?");
       console.log(id);
 
-      await this.chunkService.getThumbnail(id, res);
+      if(mediaChecker(id))
+        await this.chunkService.getThumbnail(id, res);
     } catch (e: unknown) {
       next(e);
     }
@@ -227,6 +229,8 @@ class FileController {
 
       // const search = (query.search as string) || undefined;
       const parent = (query.path as string) || "/";
+      console.log("should be looking at trash: ", query.getTrash)
+      const getTrash = query.getTrash === "true";
 
       // console.log("the current parent directory is: " + parent);
 
@@ -236,7 +240,7 @@ class FileController {
       // const limit = Number.parseInt(query.limit as string) || 50;
       // const sortBy = (query.sortBy as string) || "date_desc";
 
-      const fileList = await fileService.getList(parent);
+      const fileList = await fileService.getList(parent, getTrash);
 
       res.send(fileList);
     } catch (e) {

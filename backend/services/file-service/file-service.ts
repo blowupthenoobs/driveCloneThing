@@ -12,7 +12,7 @@ import tempStorage from "../../tempStorage/tempStorage";
 import FolderService from "../folder-service/folder-service";
 import { FileListQueryType } from "../../types/file-types";
 
-import { getFSStoragePath } from "../../utils/getFSStoragePath";
+import { getFSStoragePath, getFSTrashPath } from "../../utils/getFSStoragePath";
 import fs from "fs/promises"
 import path from "path";
 import { EntityResolution } from "aws-sdk";
@@ -101,8 +101,11 @@ class MongoFileService {
     return quickList;
   };
 
-  getList = async (currentPath: string = "") => {
-    const initialPath = getFSStoragePath();
+  getList = async (currentPath: string = "", isTrash: boolean) => {
+    let initialPath = getFSStoragePath();
+    if(isTrash)
+      initialPath = getFSTrashPath();
+
     const trimSize = initialPath.length;
     let targetPath = initialPath;
 
@@ -221,7 +224,7 @@ class MongoFileService {
     };
   };
 
-  trashFile = async (userID: string, fileID: string) => {
+  trashFile = async (fileID: string) => {
     console.log("attempted to trash file with ID: ", fileID);
     const file = await fileDB.getFileInfo(fileID, userID);
 

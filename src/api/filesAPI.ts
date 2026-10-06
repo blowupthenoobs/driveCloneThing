@@ -19,16 +19,17 @@ interface QueryKeyParams {
 
 export const getFilesListAPI = async ({
   queryKey,
-}: QueryFunctionContext<[string, {path: string}]>) => {
-  const [_key, { path }] = queryKey;
+}: QueryFunctionContext<[string, {path: string, getTrash: boolean}]>) => {
+  const [_key, { path, getTrash }] = queryKey; //trying to remove _key seems to give off some issues despite it not doing anything. Probably variable order or something
   const response = await axios.get(`/file-service/list`, {
     params: {
       path,
+      getTrash,
     },
   });
   // const response = await axios.get(`/file-service/list`);
   return response.data;
-};
+}; //Perhaps make a duplicate function that grabs from trash instead
 
 export const getQuickFilesListAPI = async () => {
   // const response = await axios.get(`/file-service/quick-list`, {

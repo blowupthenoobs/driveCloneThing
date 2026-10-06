@@ -33,7 +33,7 @@ export const useFiles = (enabled = true) => {
   const { isTrash, isMedia } = useUtils();
   const limit = isMedia ? 100 : 50;
 
-  const location = useLocation();
+  const location = useLocation(); //Here is where it grabs the location
   let directory = location.pathname;
 
   if(directory.indexOf("/home") === 0)
@@ -41,19 +41,43 @@ export const useFiles = (enabled = true) => {
   if(directory.indexOf("/folder") === 0)
     directory = directory.substring(7);
 
-  const filesReactQuery: UseInfiniteQueryResult<FileInterface[]> =
-    useInfiniteQuery(
-      [
-        "files",
-        {
-          path: directory,
-        },
-      ],
-      getFilesListAPI,
-      {enabled, refetchOnWindowFocus: false, refetchOnReconnect: false}
-    );
+  if(!isTrash)
+  {
 
-  return { ...filesReactQuery };
+    const filesReactQuery: UseInfiniteQueryResult<FileInterface[]> =
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useInfiniteQuery(
+        [
+          "files",
+          {
+            path: directory,
+            getTrash: false,
+          },
+        ],
+        getFilesListAPI,
+        {enabled, refetchOnWindowFocus: false, refetchOnReconnect: false}
+      );
+      return { ...filesReactQuery };
+  }
+  else
+  {
+    console.log("digging through trash :)"); //for some reason it doesn't seem to be pulling this... gets the other stuff tho
+    const filesReactQuery: UseInfiniteQueryResult<FileInterface[]> =
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useInfiniteQuery(
+        [
+          "files",
+          {
+            path: directory,
+            getTrash: true,
+          },
+        ],
+        getFilesListAPI,
+        {enabled, refetchOnWindowFocus: false, refetchOnReconnect: false}
+      );
+      return { ...filesReactQuery };
+  }
+
 };
 
 export const useQuickFiles = (enabled = true) => {
