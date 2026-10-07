@@ -102,9 +102,10 @@ class MongoFileService {
   };
 
   getList = async (currentPath: string = "", isTrash: boolean) => {
-    let initialPath = getFSStoragePath();
-    if(isTrash)
-      initialPath = getFSTrashPath();
+    const initialPath = getFSStoragePath();
+    const trashPath = getFSTrashPath();
+    // if(isTrash)
+    //   initialPath = getFSTrashPath();
 
     const trimSize = initialPath.length;
     let targetPath = initialPath;
@@ -112,7 +113,12 @@ class MongoFileService {
     // console.log("the current path is " + currentPath + " for files");
 
     if(currentPath != "")
-      targetPath = path.join(initialPath, currentPath);
+    {
+      if(isTrash)
+        targetPath = path.join(trashPath, currentPath);
+      else
+        targetPath = path.join(initialPath, currentPath);
+    }
 
     const entries = await fs.readdir(targetPath, {
       withFileTypes: true,
