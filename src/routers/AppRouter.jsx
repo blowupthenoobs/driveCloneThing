@@ -91,7 +91,7 @@ const AppRouter = () => {
           }
         />
         <Route
-          path="/folder-trash/:id"
+          path="/trash/*"
           element={
             <PrivateRoute>
               <Homepage />

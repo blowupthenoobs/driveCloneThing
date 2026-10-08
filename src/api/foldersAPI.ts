@@ -15,11 +15,12 @@ interface QueryKeyParams {
 
 export const getFoldersListAPI = async ({
   queryKey,
-}: QueryFunctionContext<[string, {path: string}]>) => {
-  const [_key, { path }] = queryKey;
+}: QueryFunctionContext<[string, {path: string, getTrash: boolean}]>) => {
+  const [_key, { path, getTrash }] = queryKey;
   const response = await axios.get(`/folder-service/list`, {
     params: {
       path,
+      getTrash,
     },
   });
   // const response = await axios.get(`/folder-service/list`);

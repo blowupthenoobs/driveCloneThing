@@ -21,21 +21,46 @@ export const useFolders = (enabled = true) => {
     directory = directory.substring(5);
   if(directory.indexOf("/folder") === 0)
     directory = directory.substring(7);
+  if(directory.indexOf("/trash") === 0)
+    directory = directory.substring(6);
 
   // console.log("the current directory is: " + directory); //Remember this is frontend, won't go to console but in the inspect element
 
-  const foldersReactQuery: UseQueryResult<FolderInterface[]> = useQuery(
-    [
-      "folders",
-      {
-        path: directory,
-      },
-    ],
-    getFoldersListAPI,
-    { enabled, refetchOnWindowFocus: false, refetchOnReconnect: false }
-  );
+  if(!isTrash)
+  {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const foldersReactQuery: UseQueryResult<FolderInterface[]> = useQuery(
+      [
+        "folders",
+        {
+          path: directory,
+          getTrash: false,
+        },
+      ],
+      getFoldersListAPI,
+      { enabled, refetchOnWindowFocus: false, refetchOnReconnect: false }
+    );
 
-  return { ...foldersReactQuery };
+    return { ...foldersReactQuery };
+  }
+  else
+  {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const foldersReactQuery: UseQueryResult<FolderInterface[]> = useQuery(
+      [
+        "folders",
+        {
+          path: directory,
+          getTrash: true,
+        },
+      ],
+      getFoldersListAPI,
+      { enabled, refetchOnWindowFocus: false, refetchOnReconnect: false }
+    );
+
+    return { ...foldersReactQuery };
+  }
+  
 };
 
 export const useFolder = (enabled = true) => {

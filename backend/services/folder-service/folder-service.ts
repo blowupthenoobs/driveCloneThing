@@ -7,7 +7,7 @@ import UserDB from "../../db/mongoDB/userDB";
 
 import fs from "fs/promises";
 import path from "path";
-import { getFSStoragePath } from "../../utils/getFSStoragePath";
+import { getFSStoragePath, getFSTrashPath } from "../../utils/getFSStoragePath";
 
 import { useLocation } from "react-router-dom";
 
@@ -56,9 +56,14 @@ class FolderService {
     return currentFolder;
   };
 
-  getFolderList = async (currentPath: string = "") => {
+  getFolderList = async (currentPath: string = "", isTrash: boolean) => {
+    let initialPath = getFSStoragePath();
 
-    const initialPath = getFSStoragePath();
+    if(isTrash)
+      initialPath = getFSTrashPath();
+
+    if(initialPath === undefined)
+      return;
     const trimSize = initialPath.length;
     let targetPath = initialPath;
 

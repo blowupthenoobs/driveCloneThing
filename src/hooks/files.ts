@@ -40,6 +40,8 @@ export const useFiles = (enabled = true) => {
     directory = directory.substring(5);
   if(directory.indexOf("/folder") === 0)
     directory = directory.substring(7);
+  if(directory.indexOf("/trash") === 0)
+    directory = directory.substring(6);
 
   if(!isTrash)
   {

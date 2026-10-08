@@ -141,10 +141,11 @@ class FolderController {
 
       // const search = (query.search as string) || undefined;
       const parent = (query.path as string) || "/";
+      const getTrash = query.getTrash === "true";
       // const sortBy = (query.sortBy as string) || "date_desc";
       // const trashMode = query.trashMode === "true";
 
-      const folderList = await folderService.getFolderList(parent);
+      const folderList = await folderService.getFolderList(parent, getTrash);
 
       res.send(folderList);
     } catch (e) {
