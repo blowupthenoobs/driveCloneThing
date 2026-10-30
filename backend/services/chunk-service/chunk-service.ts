@@ -350,8 +350,8 @@ class StorageService {
     return { archive };
   };
 
-  getThumbnail = async (id: string, res: Response) => {
-    await getThumbnailData(res, id);
+  getThumbnail = async (id: string, res: Response, isTrash: boolean) => {
+    await getThumbnailData(res, id, isTrash);
   };
 
   getFullThumbnail = async (

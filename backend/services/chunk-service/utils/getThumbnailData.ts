@@ -7,20 +7,28 @@ import NotFoundError from "../../../utils/NotFoundError";
 import imageChecker from "../../../utils/imageChecker";
 import videoChecker from "../../../utils/videoChecker";
 import path from "path";
-import { getFSStoragePath } from "../../../utils/getFSStoragePath";
+import { getFSStoragePath, getFSTrashPath } from "../../../utils/getFSStoragePath";
 
 const processData = (
   res: Response,
   id: string, //find a way to get this to just be the path string
+  isTrash: boolean,
 ) => {
   const emitter = new EventEmitter();
 
   (async () => {
     try {
-      const baseDirectory = getFSStoragePath();
+      let baseDirectory = getFSStoragePath();
+      if(isTrash)
+        baseDirectory = getFSTrashPath();
+      
+      if(baseDirectory === undefined)
+        return;
+
       const filePath = path.join(baseDirectory, id);
 
       console.log("thumbnail id is: ", id);
+      console.log("the full filepath is: ", filePath);
       
       if (!fs.existsSync(filePath)) {
         console.log("file is not being found rn")
@@ -72,10 +80,11 @@ const processData = (
 
 const getThumbnailData = (
   res: Response,
-  id: string
+  id: string,
+  isTrash: boolean
 ) =>
   new Promise((resolve, reject) => {
-    const e = processData(res, id);
+    const e = processData(res, id, isTrash);
     e.on("finish", resolve);
     e.on("error", reject);
   });

@@ -33,7 +33,7 @@ const router = Router();
 // GET
 
 router.get(
-  "/file-service/thumbnail/*",
+  "/file-service/thumbnail/:isTrash/*",
   fileController.getThumbnail
 );
 

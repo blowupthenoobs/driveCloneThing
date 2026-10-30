@@ -15,6 +15,7 @@ import getBackendURL from "../../utils/getBackendURL";
 import dayjs from "dayjs";
 // import CalendarIcon from "../../icons/CalendarIcon";
 import ClockIcon from "../../icons/ClockIcon";
+import { useUtils } from "../../hooks/utils";
 
 interface FileItemProps {
   file: FileInterface;
@@ -22,6 +23,7 @@ interface FileItemProps {
 
 const FileItem: React.FC<FileItemProps> = memo((props) => {
   const { file } = props;
+  const { isTrash } = useUtils();
   const elementSelected = useAppSelector((state) => {
     if (state.selected.mainSection.type !== "file") return false;
     return state.selected.mainSection.id === file._id;
@@ -35,7 +37,7 @@ const FileItem: React.FC<FileItemProps> = memo((props) => {
     (state) => state.selected.multiSelectMode
   );
   const listView = useAppSelector((state) => state.general.listView);
-  const thumbnailURL = `${getBackendURL()}/file-service/thumbnail/${
+  const thumbnailURL = `${getBackendURL()}/file-service/thumbnail/${isTrash}/${
     file._id
   }`;
   // const hasThumbnail = file.metadata.hasThumbnail;

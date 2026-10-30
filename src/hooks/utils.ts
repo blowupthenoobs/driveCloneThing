@@ -9,8 +9,7 @@ export const useUtils = () => {
 
   const isTrash =
     location.pathname === "/trash" ||
-    location.pathname.includes("/folder-trash") ||
-    location.pathname.includes("/search-trash");
+    location.pathname.indexOf("/trash") === 0;
 
   const isMedia =
     location.pathname === "/media" ||

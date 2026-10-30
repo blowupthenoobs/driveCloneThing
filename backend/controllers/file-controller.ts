@@ -44,12 +44,14 @@ class FileController {
     next: NextFunction
   ) => {
     try {
+      const isTrash = req.params.isTrash === "true";
       const id = req.params[0];
+      // const getTrash = req.
       // console.log("has this function ever been called?");
-      console.log(id);
+      console.log("the variable isTrash current has the value of: ", isTrash);
 
       if(mediaChecker(id))
-        await this.chunkService.getThumbnail(id, res);
+        await this.chunkService.getThumbnail(id, res, isTrash);
     } catch (e: unknown) {
       next(e);
     }
